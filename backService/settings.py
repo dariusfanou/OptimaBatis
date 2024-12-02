@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import os
 from decouple import config
-import django_database_url
+import dj_database_url
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -99,7 +99,7 @@ WSGI_APPLICATION = 'backService.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': django_database_url.parse(config('DATABASE_URL'))
+    'default': dj_database_url.parse(config('DATABASE_URL'))
 }
 
 
