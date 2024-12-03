@@ -29,24 +29,32 @@ class UtilisateurModifView(viewsets.GenericViewSet,mixins.RetrieveModelMixin,mix
     
     
 class RequetepasswordResset(APIView):
-    def post(self,request):
-        email=request.data.get('email')
+    def post(self, request):
+        email = request.data.get('email')
+        if not email:
+            return Response({"error": "L'email est requis."}, status=status.HTTP_400_BAD_REQUEST)
+
         try:
-            user=User.objects.get('email')
-            token=get_random_string(50)
-            user.paassword_reset_token=token
-            user.token_created_at=now()
+            user = User.objects.get(email=email)
+            token = get_random_string(50)  # Génération du jeton
+            user.password_reset_token = token  # Assurez-vous que ce champ existe dans le modèle
+            user.token_created_at = now()  # Assurez-vous que ce champ existe dans le modèle
             user.save()
-            reset_url=f"optimabatis-1.onrender.com/resetpassword/{token}/"
-            send_mail(subject="Reinitialisation de votre mot de passe",
-                      message=f"utilisez ce lien pour réinnitialiser votre mot de passe: {reset_url}",
-                      from_email="isidortoy@gmail.com",
-                      recipient_list=[email]),
-            return Response({"message":"un email a été envoyer pour réinitialiser votre mot de passe"},
-                            status=status.HTTP_200_OK)
+
+            reset_url = f"https://optimabatis-1.onrender.com/resetpassword/{token}/"
+            send_mail(
+                subject="Réinitialisation de votre mot de passe",
+                message=f"Utilisez ce lien pour réinitialiser votre mot de passe : {reset_url}",
+                from_email="isidortoy@gmail.com",
+                recipient_list=[email]
+            )
+            return Response(
+                {"message": "Un email a été envoyé pour réinitialiser votre mot de passe."},
+                status=status.HTTP_200_OK
+            )
         except User.DoesNotExist:
-            return Response({"error":"Email introuvable ."},status=status.HTTP_404_NOT_FOUND)
-            
+            return Response({"error": "Email introuvable."}, status=status.HTTP_404_NOT_FOUND)
+
             
 class ConfirmPasswordResset(APIView):
     def post(self,request,token):
