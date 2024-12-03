@@ -6,7 +6,7 @@ User=get_user_model()
 class Service(models.Model):
     label=models.CharField(max_length=20)
     image=models.ImageField(upload_to='image_service')
-    createur=models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
+    createur=models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)
     
     def __str__(self):
         return self.label
@@ -15,7 +15,7 @@ class SousService(models.Model):
     label=models.CharField(max_length=20)
     image=models.ImageField(upload_to='image_service')
     service=models.ForeignKey(Service,on_delete=models.CASCADE)
-    createur=models.ForeignKey(User,on_delete=models.SET_NULL,null=True)
+    createur=models.ForeignKey(User,on_delete=models.SET_NULL,null=True,blank=True)
     
     def __str__(self):
         return self.label
@@ -23,7 +23,7 @@ class SousService(models.Model):
 class Publiciter(models.Model):
     image=models.ImageField(upload_to='pub_image')
     description=models.TextField()
-    createur=models.ForeignKey(User,on_delete=models.CASCADE)
+    createur=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)
     
 class Intervention(models.Model):
     typedemande=models.CharField(max_length=30)
@@ -36,4 +36,4 @@ class Intervention(models.Model):
     image2=models.ImageField(upload_to='image_intervention',blank=True,null=True)
     preferencecontact=models.CharField(max_length=20)
     actif=models.BooleanField(default=True)
-    createur=models.ForeignKey(User,on_delete=models.CASCADE)
+    createur=models.ForeignKey(User,on_delete=models.CASCADE,null=True,blank=True)

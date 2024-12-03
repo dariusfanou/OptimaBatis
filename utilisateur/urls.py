@@ -1,5 +1,5 @@
 from django.urls import path,include
-from .views import UtilisateurCreateView,UtilisateurModifView
+from .views import UtilisateurCreateView,UtilisateurModifView,RequetepasswordResset,ConfirmPasswordResset
 from service.views import PubView,pubListRead,ServiceListRetriev,ServiceModifView,SousServiceListRetriev,SousServiceModifView
 from service.views import InterventionView
 from rest_framework.routers import DefaultRouter
@@ -16,5 +16,7 @@ route.registry.extend([
 ])
 urlpatterns = [
     path('usercreate',UtilisateurCreateView.as_view()),
-    path('',include(route.urls))
+    path('',include(route.urls)),
+    path('passwordreset/',RequetepasswordResset.as_view(),name='password-reset'),
+    path('passwordreset/<str:token>/',ConfirmPasswordResset.as_view(),name='password-reset-confirm')
 ]
