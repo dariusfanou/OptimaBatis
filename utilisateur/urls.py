@@ -18,5 +18,5 @@ urlpatterns = [
     path('usercreate',UtilisateurCreateView.as_view()),
     path('',include(route.urls)),
     path('passwordreset/',RequetepasswordResset.as_view(),name='password-reset'),
-    path('passwordreset/<str:token>/',ConfirmPasswordResset.as_view(),name='password-reset-confirm')
+    path('passwordget/<str:token>/',ConfirmPasswordResset.as_view(),name='password-reset-confirm')
 ]
