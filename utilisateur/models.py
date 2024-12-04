@@ -11,7 +11,7 @@ class Utilisateur(AbstractUser):
     genre=models.CharField(max_length=10,choices=genres,default='homme')
     datenaissance=models.DateField(null=True,blank=True)
     photo=models.ImageField(null=True,blank=True,upload_to='photo_profile')
-    password_reset_token=models.CharField(max_length=15,blank=True,null=True)
+    password_reset_token=models.CharField(max_length=60,blank=True,null=True)
     token_created_at=models.DateTimeField(null=True,blank=True)
     USERNAME_FIELD='numtelephone'
     REQUIRED_FIELDS=['username']

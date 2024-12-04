@@ -27,3 +27,24 @@ class UtilisateurSerializer(serializers.ModelSerializer):
             user.save() 
         return user
     
+    
+class PasswordRessetRequetSerialiser(serializers.Serializer):
+    email=serializers.EmailField()
+    def validate_email(self,value):
+        if not User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("ce compte n'existe pas")
+        return value
+    
+class PasswordResetSerialiser(serializers.Serializer):
+    password_reset_token=serializers.CharField()
+    new_password=serializers.CharField(min_length=6)
+    def validate_token(self,value):
+        if not User.objects.filter(password_reset_token=value).exists():
+            raise serializers.ValidationError("le code saisi n'est pas correct")
+        return value
+    def save(self):
+        data=self.validated_data
+        user=User.objects.get(password_reset_token=data['password_reset_token'])
+        user.set_password(data['new_password'])
+        user.password_reset_token=None
+        user.save()
