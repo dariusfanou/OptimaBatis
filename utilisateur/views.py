@@ -30,7 +30,7 @@ class UtilisateurModifView(viewsets.GenericViewSet,mixins.RetrieveModelMixin,mix
     
     
 class RequetepasswordResset(generics.CreateAPIView):
-    serializer_class=PasswordResetSerialiser
+    serializer_class=PasswordRessetRequetSerialiser
     def perform_create(self,serializer):
         email=serializer.validated_data['email']
         user=User.objects.get(email=email)
