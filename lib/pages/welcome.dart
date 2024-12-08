@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:optimabatis/pages/password.dart';
 import 'package:optimabatis/pages/verification.dart';
+import 'package:optimabatis/pages/password_creation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -259,7 +260,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (context) {
-                                          return VerificationPage(goal: "inscription");
+                                          return CreatePassword();
                                         })
                                     );
                                   }
