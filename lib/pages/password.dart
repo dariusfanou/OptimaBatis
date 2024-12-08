@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:optimabatis/pages/home.dart';
 import 'package:optimabatis/pages/verification.dart';
+import 'package:optimabatis/pages/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../flutter_helpers/services/user_service.dart';

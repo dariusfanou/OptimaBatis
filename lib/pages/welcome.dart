@@ -4,6 +4,7 @@ import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:optimabatis/pages/password.dart';
 import 'package:optimabatis/pages/password_creation.dart';
 import 'package:optimabatis/pages/verification.dart';
+import 'package:optimabatis/pages/password_creation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePage extends StatefulWidget {
