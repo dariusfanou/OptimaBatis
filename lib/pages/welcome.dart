@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:optimabatis/pages/password.dart';
+import 'package:optimabatis/pages/password_creation.dart';
 import 'package:optimabatis/pages/verification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -41,6 +42,20 @@ class _WelcomePageState extends State<WelcomePage> {
   final formKey = GlobalKey<FormState>();
   final DraggableScrollableController _draggableController = DraggableScrollableController();
   String? phoneNumber;
+  bool isPhoneFieldEmpty = true;
+
+  void checkPhoneField() {
+    if(phoneNumber == null || phoneNumber!.isEmpty) {
+      setState(() {
+        isPhoneFieldEmpty = true;
+      });
+    }
+    else {
+      setState(() {
+        isPhoneFieldEmpty = false;
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -213,40 +228,50 @@ class _WelcomePageState extends State<WelcomePage> {
                               SizedBox(height: 10,),
                               Form(
                                   key: formKey,
-                                  child: IntlPhoneField(
-                                    decoration: InputDecoration(
-                                      hintText: "Numéro de téléphone",
-                                      hintStyle: TextStyle(
-                                          color: Color(0xFF4F4F4F),
-                                          fontSize: 13,
+                                  child: Column(
+                                    children: [
+                                      IntlPhoneField(
+                                        decoration: InputDecoration(
+                                            hintText: "Numéro de téléphone",
+                                            hintStyle: TextStyle(
+                                              color: Color(0xFF4F4F4F),
+                                              fontSize: 13,
+                                            ),
+                                            border: OutlineInputBorder(
+                                                borderRadius: BorderRadius.circular(32),
+                                                borderSide: BorderSide(color: Color(0xFF707070))
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderSide: BorderSide(color: Color(0xFF707070)),
+                                              borderRadius: BorderRadius.circular(32),
+                                            )
+                                        ),
+                                        keyboardType: TextInputType.phone,
+                                        initialCountryCode: 'BJ',
+                                        onChanged: (phone) {
+                                          phoneNumber = phone.completeNumber;
+                                          checkPhoneField();
+                                        },
+                                        showDropdownIcon: false,
+                                        flagsButtonMargin: EdgeInsets.only(left: 32),
+                                        dropdownTextStyle: TextStyle(
+                                          fontSize: 19,
+                                          fontWeight: FontWeight.w600,
+                                          color: Color(0xFF1F2937),
+                                        ),
                                       ),
-                                      border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(32),
-                                          borderSide: BorderSide(color: Color(0xFF707070))
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(color: Color(0xFF707070)),
-                                        borderRadius: BorderRadius.circular(32),
-                                      )
-                                    ),
-                                    keyboardType: TextInputType.phone,
-                                    initialCountryCode: 'BJ',
-                                    onChanged: (phone) {
-                                      phoneNumber = phone.completeNumber;
-                                    },
-                                    showDropdownIcon: false,
-                                    flagsButtonMargin: EdgeInsets.only(left: 32),
-                                    dropdownTextStyle: TextStyle(
-                                      fontSize: 19,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1F2937),
-                                    ),
-                                    validator: (value) {
-                                      if (phoneNumber == null || phoneNumber!.isEmpty) {
-                                        return "Veuillez entrer un numéro de téléphone";
-                                      }
-                                      return null; // Si tout est correct
-                                    },
+                                      isPhoneFieldEmpty ?
+                                      Container(
+                                        padding: EdgeInsets.only(top: 3, left: 12),
+                                        child: Text("Veuillez entrez un numéro de téléphone",
+                                          style: TextStyle(
+                                            color: Colors.red[700],
+                                            fontSize: 12.3,
+                                          ),
+                                        ),
+                                      ) :
+                                      SizedBox()
+                                    ],
                                   )
                               ),
                             ],
@@ -254,12 +279,13 @@ class _WelcomePageState extends State<WelcomePage> {
                           Center(
                             child: TextButton(
                                 onPressed: () async {
-                                  if(formKey.currentState!.validate()) {
+                                  if(formKey.currentState!.validate() && !isPhoneFieldEmpty) {
                                     await saveNumber();
+                                    phoneNumber = "";
                                     Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (context) {
-                                          return VerificationPage(goal: "inscription");
+                                          return CreatePassword();
                                         })
                                     );
                                   }
@@ -287,8 +313,9 @@ class _WelcomePageState extends State<WelcomePage> {
                                 foregroundColor: WidgetStatePropertyAll(Colors.white)
                               ),
                               onPressed: () async {
-                                if(formKey.currentState!.validate()) {
+                                if(formKey.currentState!.validate() && !isPhoneFieldEmpty) {
                                   await saveNumber();
+                                  phoneNumber = "";
                                   Navigator.push(
                                       context,
                                       MaterialPageRoute(builder: (context) {

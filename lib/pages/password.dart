@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:optimabatis/pages/home.dart';
 import 'package:optimabatis/pages/verification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -40,13 +41,13 @@ class _PasswordPageState extends State<PasswordPage> {
       prefs.setString("token", authUser['access']!);
 
       // Afficher un message de succès
-      Fluttertoast.showToast(msg: "Utilisateur connecté avec succès");
+      Fluttertoast.showToast(msg: "Vous êtes connecté");
 
       // Rediriger vers la page d'accueil
       Navigator.push(
           context,
           MaterialPageRoute(builder: (context) {
-            return VerificationPage(goal: "connexion");
+            return HomePage();
           })
       );
 

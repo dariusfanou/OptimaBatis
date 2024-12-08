@@ -41,7 +41,7 @@ class _EmailPageState extends State<EmailPage> {
       prefs.setString("token", authUser['access']!);
 
       // Afficher un message de succès
-      Fluttertoast.showToast(msg: "Utilisateur connecté avec succès");
+        Fluttertoast.showToast(msg: "vous êtes connecté");
 
       // Rediriger vers la page d'accueil
       Navigator.push(
@@ -120,7 +120,7 @@ class _EmailPageState extends State<EmailPage> {
 
       emailController.text = "";
 
-      Fluttertoast.showToast(msg: "Utilisateur créé avec succès");
+      Fluttertoast.showToast(msg: "Compte créé avec succès");
 
       await loginUser();
 

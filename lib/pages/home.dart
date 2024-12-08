@@ -3,27 +3,48 @@ import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:optimabatis/pages/notification.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
 import 'package:optimabatis/pages/informatique.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+
+  final images = [
+    {'image':'assets/images/Macon.png','text':"Maçon"},
+    {'image':'assets/images/Menuisier.png','text':"Menuisier"},
+    {'image':'assets/images/Plombier.png','text':"Plombier"},
+    {'image':'assets/images/Electricien.png','text':"Electricien"},
+    {'image':'assets/images/Peintre.png','text' :"Peintre"},
+    {'image':'assets/images/Soudeur.png','text':"Soudeur"},
+    {'image':'assets/images/Tech_Solaire.png','text':"Tech.Solaire"},
+    {'image':'assets/images/Charpentier.png','text':"Charpenter"},
+    {'image':'assets/images/Frigoriste.png','text':"Frigoriste"},
+    {'image':'assets/images/Vitrier.png','text':"Vitrier"},
+    {'image':'assets/images/Carreleur.png','text':'Carreleur'},
+    {'image':'assets/images/Reseau.png','text':"Réseau"},
+    {'image':'assets/images/Informatique.png','text':"Informatique"}
+  ];
+
+  Future PrintToken() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? token = await prefs.getString("token");
+    print(token);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    PrintToken();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final images = [
-      {'image':'assets/images/Macon.png','text':"Maçon"},
-      {'image':'assets/images/Menuisier.png','text':"Menuisier"},
-      {'image':'assets/images/Plombier.png','text':"Plombier"},
-      {'image':'assets/images/Electricien.png','text':"Electricien"},
-      {'image':'assets/images/Peintre.png','text' :"Peintre"},
-      {'image':'assets/images/Soudeur.png','text':"Soudeur"},
-      {'image':'assets/images/Tech_Solaire.png','text':"Tech.Solaire"},
-      {'image':'assets/images/Charpentier.png','text':"Charpenter"},
-      {'image':'assets/images/Frigoriste.png','text':"Frigoriste"},
-      {'image':'assets/images/Vitrier.png','text':"Vitrier"},
-      {'image':'assets/images/Carreleur.png','text':'Carreleur'},
-      {'image':'assets/images/Reseau.png','text':"Réseau"},
-      {'image':'assets/images/Informatique.png','text':"Informatique"}
-    ];
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -61,12 +82,12 @@ class HomePage extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 10),
             height: 200,
             decoration:BoxDecoration(
-              color: Colors.limeAccent,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Colors.black,
-                width: 1
-              )
+                color: Colors.limeAccent,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                    color: Colors.black,
+                    width: 1
+                )
             ),
             //color: Colors.yellow,
             child: const Center(
@@ -81,42 +102,42 @@ class HomePage extends StatelessWidget {
           ),
           SizedBox(height: 30,),
           Expanded(
-            child: GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, mainAxisSpacing: 1,childAspectRatio: 3/4),
-            itemCount: images.length,
-            itemBuilder: (context,index)
-            {
-              final item = images[index];
-            return Column(
-              children:[
-                Expanded(child:
-                GestureDetector(onTap: (){
-                  if(item['text'] != 'Informatique')
-                    {
-                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> DetailsInterventionPage()),);
-                    }
-                  else{
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> informatique()),);
-                  }
+              child: GridView.builder(gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 4, mainAxisSpacing: 1,childAspectRatio: 3/4),
+                  itemCount: images.length,
+                  itemBuilder: (context,index)
+                  {
+                    final item = images[index];
+                    return Column(
+                      children:[
+                        Expanded(child:
+                        GestureDetector(onTap: (){
+                          if(item['text'] != 'Informatique')
+                          {
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> DetailsInterventionPage()),);
+                          }
+                          else{
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> informatique()),);
+                          }
 
-                },
-                  child:Image.asset(item['image']!,
-                    width: 200,
-                    height: 200,
-                  ),),
-                ),
-                const SizedBox(height: 5),
-                Expanded(
-                  child: Text(item['text']!,
-                    style: const TextStyle(fontSize: 12),
-                    textAlign: TextAlign.center,),)
-              ],
-            );
-            })
+                        },
+                          child:Image.asset(item['image']!,
+                            width: 200,
+                            height: 200,
+                          ),),
+                        ),
+                        const SizedBox(height: 5),
+                        Expanded(
+                          child: Text(item['text']!,
+                            style: const TextStyle(fontSize: 12),
+                            textAlign: TextAlign.center,),)
+                      ],
+                    );
+                  })
           ),
         ],
       ),
       bottomNavigationBar: CustomNavBar(currentIndex: 0),
-     );
+    );
   }
 
   Widget _buildCategoryItem(IconData icon, String label) {
