@@ -2,8 +2,6 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:optimabatis/pages/home.dart';
-import 'package:optimabatis/pages/verification.dart';
-import 'package:optimabatis/pages/home.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../flutter_helpers/services/user_service.dart';
@@ -26,14 +24,19 @@ class _PasswordPageState extends State<PasswordPage> {
 
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String? number = await prefs.getString('number');
-      final String? password = await prefs.getString('password');
+      String? number = await prefs.getString('number');
+
+      if(number == "+22940285569") {
+        number = "40285569";
+      }
 
       // Prépare les données à envoyer
       Map<String, dynamic> data = {
         'numtelephone': number,
-        'password': password
+        'password': passwordController.text
       };
+
+      print(data);
 
       // Lancer la requête
       Map<String, dynamic> authUser = await userService.login(data);
@@ -43,6 +46,8 @@ class _PasswordPageState extends State<PasswordPage> {
 
       // Afficher un message de succès
       Fluttertoast.showToast(msg: "Vous êtes connecté");
+
+      await prefs.remove("number");
 
       // Rediriger vers la page d'accueil
       Navigator.push(

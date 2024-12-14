@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:optimabatis/pages/description_date.dart';
 import 'dart:io';
 import 'package:optimabatis/pages/preference.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 
 class DocumentPhotoPage extends StatefulWidget {
@@ -11,18 +13,22 @@ class DocumentPhotoPage extends StatefulWidget {
 
 class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
   List<Map<String, dynamic>> images = [];
+  int i = 0;
 
   Future<void> selectPhoto() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
       allowMultiple: true,
     );
 
     if (result != null) {
-      setState(() {
+      setState(() async {
         for (var file in result.files) {
           if (images.length < 3) {
             images.add({'name': file.name, 'path': file.path});
+            await prefs.setString("${"image" + i.toString()}", file.path!);
+            i++;
           }
         }
       });
@@ -54,7 +60,12 @@ class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) {
+                  return Description();
+                })
+            );
           },
         ),
         title: Text("Documents et Photos"),
@@ -122,9 +133,8 @@ class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
                 child: Center(
                   child: Column(
                     children: [
-                      Text("Ajoutez une photo de profil"),
+                      Text("Ajoutez une photo"),
                       Icon(Icons.person, color: Colors.blue, size: 40),
-                      Text("Photo de profil", style: TextStyle(color: Colors.blue)),
                     ],
                   ),
                 ),
@@ -161,16 +171,19 @@ class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
                 },
               ),
             ),
-            Center(
+            SizedBox(
+              width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Color(0xFF3172B8)),
+                  elevation: MaterialStateProperty.all(0),
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
+                    side: BorderSide(color: Color(0xFF707070), width: 1),
+                  )),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
                 ),
-                onPressed: () {
+                onPressed: () async {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => Preference()),
@@ -178,7 +191,7 @@ class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
                 },
                 child: Text(
                   "Suivant",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
                 ),
               ),
             ),

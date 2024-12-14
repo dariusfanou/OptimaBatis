@@ -41,7 +41,7 @@ class _EmailPageState extends State<EmailPage> {
       prefs.setString("token", authUser['access']!);
 
       // Afficher un message de succès
-        Fluttertoast.showToast(msg: "vous êtes connecté");
+      Fluttertoast.showToast(msg: "Vous êtes connecté");
 
       // Rediriger vers la page d'accueil
       Navigator.push(
@@ -123,6 +123,14 @@ class _EmailPageState extends State<EmailPage> {
       Fluttertoast.showToast(msg: "Compte créé avec succès");
 
       await loginUser();
+
+      await prefs.remove("name");
+      await prefs.remove("firstname");
+      await prefs.remove("gender");
+      await prefs.remove("number");
+      await prefs.remove("password");
+      await prefs.remove("profile");
+      await prefs.remove("date");
 
     } on DioException catch (e) {
 

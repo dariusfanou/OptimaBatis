@@ -1,14 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'notification.dart';
 
-class Publicite extends StatelessWidget {
+class Publicite extends StatefulWidget {
+  const Publicite({super.key});
+
+  @override
+  State<Publicite> createState() => _PubliciteState();
+}
+
+class _PubliciteState extends State<Publicite> {
+
   // Liste des chemins ou URLs des images
   final List<String> images = [
     'assets/images/ing-co.png',
     'assets/images/sat-bat.png',
     'assets/images/sicat-btp.jpg',
   ];
+
+  final userService = UserService();
+  Map<String, dynamic>? authUser;
+
+  Future<void> getAuthUser() async {
+    try {
+      final user = await userService.getUser();
+      if (user != null) {
+        setState(() {
+          authUser = user;
+        });
+      } else {
+        print("Aucun utilisateur authentifié trouvé.");
+      }
+    } catch (error) {
+      print("Erreur lors de la récupération de l'utilisateur : $error");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getAuthUser();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -22,12 +55,20 @@ class Publicite extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundImage: AssetImage(
-                  'assets/images/african-american-woman-black-long-sleeve-tee-portrait.jpg'),
+              backgroundImage: authUser?['profilePicture'] != null
+                  ? NetworkImage(authUser!['profilePicture'])
+                  : const AssetImage('assets/images/profile.png') as ImageProvider,
             ),
-            SizedBox(width: 70),
-            Image.asset("assets/images/logotype.png",width: 150,height: 150,),
-            Spacer(),
+            Expanded(
+                child: Align(
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    "assets/images/logotype.png",
+                    width: 150,
+                    height: 200,
+                  ),
+                )
+            ),
           ],
         ),
 

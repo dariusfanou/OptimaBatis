@@ -124,7 +124,7 @@ class _PersonalDatasState extends State<PersonalDatas> {
                               prefixIcon: Image.asset("assets/images/person.png"),
                           ),
                           validator: (value) {
-                            return (value == null || value.isEmpty) ? "Veuillez entrer votre mot de passe" : null;
+                            return (value == null || value.isEmpty) ? "Veuillez entrer votre nom" : null;
                           },
                         ),
                         SizedBox(height: 16,),
@@ -148,7 +148,7 @@ class _PersonalDatasState extends State<PersonalDatas> {
                               prefixIcon: Image.asset("assets/images/person.png"),
                           ),
                           validator: (value) {
-                            return (value == null || value.isEmpty) ? "Veuillez entrer votre mot de passe" : null;
+                            return (value == null || value.isEmpty) ? "Veuillez entrer votre(vos) prénom(s)" : null;
                           },
                         ),
                         SizedBox(height: 16,),

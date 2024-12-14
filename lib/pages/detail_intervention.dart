@@ -1,19 +1,23 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:optimabatis/pages/description_date.dart';
+import 'package:optimabatis/pages/home.dart';
+import 'package:optimabatis/pages/informatique.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailsInterventionPage extends StatefulWidget {
+
+  const DetailsInterventionPage({super.key, this.service, this.provenance});
+
+  final String? service;
+  final String? provenance;
+
   @override
   _DetailsInterventionPageState createState() =>
       _DetailsInterventionPageState();
 }
 
 class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
-  bool panneDevis = false;
-  bool renovationTotale = false;
-  bool renovationPartielle = false;
-  bool construction = false;
-  bool informatique = false;
+  int? _value = 1; // Valeur par défaut sélectionnée (option 1)
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +26,22 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pop(context);
+            if(widget.provenance == "informatique") {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return Informatique();
+                  })
+              );
+            }
+            else {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) {
+                    return HomePage();
+                  })
+              );
+            }
           },
         ),
         title: Text("Détails de l'intervention"),
@@ -38,40 +57,20 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
             Center(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(width: 5),
-                  CircleAvatar(
+                children: List.generate(
+                  4,
+                      (index) => Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 5),
+                    child: CircleAvatar(
                       radius: 5,
                       backgroundColor: Colors.grey,
                       child: CircleAvatar(
                         radius: 4,
-                        backgroundColor: Colors.blue,
-                      )),
-                  SizedBox(width: 5),
-                  CircleAvatar(
-                      radius: 5,
-                      backgroundColor: Colors.grey,
-                      child: CircleAvatar(
-                        radius: 4,
-                        backgroundColor: Colors.white,
-                      )),
-                  SizedBox(width: 5),
-                  CircleAvatar(
-                      radius: 5,
-                      backgroundColor: Colors.grey,
-                      child: CircleAvatar(
-                        radius: 4,
-                        backgroundColor: Colors.white,
-                      )),
-                  SizedBox(width: 5),
-                  CircleAvatar(
-                      radius: 5,
-                      backgroundColor: Colors.grey,
-                      child: CircleAvatar(
-                        radius: 4,
-                        backgroundColor: Colors.white,
-                      )),
-                ],
+                        backgroundColor: index == 0 ? Colors.blue : Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
             SizedBox(height: 20),
@@ -80,109 +79,55 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
-            Container(
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: panneDevis,
-                        onChanged: (value) {
-                          setState(() {
-                            panneDevis = value!;
-                          });
-                        },
-                      ),
-                      Expanded(
-                        child: Text(
-                        "Signalement de panne et de devis",
-                        style: TextStyle(fontSize: 13),
-                        ),
-                      )
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: renovationTotale,
-                        onChanged: (value) {
-                          setState(() {
-                            renovationTotale = value!;
-                          });
-                        },
-                      ),
-                      Expanded(child: Text(
-                        "Demande de rénovation totale de bâtiment",
-                        style: TextStyle(fontSize: 13),
-                      ),)
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: renovationPartielle,
-                        onChanged: (value) {
-                          setState(() {
-                            renovationPartielle = value!;
-                          });
-                        },
-                      ),
-                      Expanded(child: Text(
-                        "Demande de rénovation partielle de bâtiment",
-                        style: TextStyle(fontSize: 13),
-                      ),)
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: construction,
-                        onChanged: (value) {
-                          setState(() {
-                            construction = value!;
-                          });
-                        },
-                      ),
-                      Expanded(child: Text(
-                        "Construction",
-                        style: TextStyle(fontSize: 13),
-                      ),)
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Checkbox(
-                        value: informatique,
-                        onChanged: (value) {
-                          setState(() {
-                            informatique = value!;
-                          });
-                        },
-                      ),
-                      Expanded(child: Text(
-                        "Informatique et réseaux",
-                        style: TextStyle(fontSize: 13),
-                      ),)
-                    ],
-                  ),
-                ],
-              ),
+            Column(
+              children: [
+                _buildRadioOption(1, "Signalement de panne et de devis"),
+                _buildRadioOption(2, "Demande de rénovation totale de bâtiment"),
+                _buildRadioOption(3, "Demande de rénovation partielle de bâtiment"),
+                _buildRadioOption(4, "Construction"),
+                _buildRadioOption(5, "Informatique et réseaux"),
+              ],
             ),
-
-            // Liste des cases à cocher
-
             Spacer(),
             // Bouton suivant
-            Center(
+            SizedBox(
+              width: double.infinity,
               child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.indigo,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30),
-                  ),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(Color(0xFF3172B8)),
+                  elevation: MaterialStateProperty.all(0),
+                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(32),
+                    side: BorderSide(color: Color(0xFF707070), width: 1),
+                  )),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
                 ),
-                onPressed: () {
+                onPressed: () async {
+                  if (_value == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("Veuillez sélectionner une option")),
+                    );
+                    return;
+                  }
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setString("service", widget.service!);
+                  switch (_value) {
+                    case 1:
+                      await prefs.setString("demande", "panneDevis");
+                      break;
+                    case 2:
+                      await prefs.setString("demande", "rennovationTotale");
+                      break;
+                    case 3:
+                      await prefs.setString("demande", "rennovationPartielle");
+                      break;
+                    case 4:
+                      await prefs.setString("demande", "construction");
+                      break;
+                    case 5:
+                      await prefs.setString("demande", "informatique");
+                      break;
+                  }
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => Description()),
@@ -190,13 +135,36 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
                 },
                 child: Text(
                   "Suivant",
-                  style: TextStyle(fontSize: 16, color: Colors.white),
+                  style: TextStyle(fontSize: 19, fontWeight: FontWeight.w600),
                 ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  // Fonction pour construire une option radio
+  Widget _buildRadioOption(int value, String label) {
+    return Row(
+      children: [
+        Radio<int>(
+          value: value,
+          groupValue: _value,
+          onChanged: (value) {
+            setState(() {
+              _value = value;
+            });
+          },
+        ),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(fontSize: 13),
+          ),
+        ),
+      ],
     );
   }
 }

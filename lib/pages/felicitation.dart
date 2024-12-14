@@ -6,7 +6,7 @@ class Felicitation extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Container(
-          color: Colors.indigo,
+          color: Color(0xFF3172B8),
           width: double.infinity,
           height: double.infinity,
           child: Center(
@@ -22,7 +22,7 @@ class Felicitation extends StatelessWidget {
                   Icon(
                     Icons.check,
                     size: 70,
-                    color: Colors.indigo,
+                    color: Color(0xFF3172B8),
                   ),
                   SizedBox(height: 10),
                   Text(
@@ -30,7 +30,7 @@ class Felicitation extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.normal,
-                      color: Colors.indigo,
+                      color: Color(0xFF3172B8),
                     ),
                   ),
                   SizedBox(height: 10),
@@ -45,7 +45,7 @@ class Felicitation extends StatelessWidget {
                   SizedBox(height: 50),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.indigo,
+                      backgroundColor: Color(0xFF3172B8),
                       padding: EdgeInsets.symmetric(horizontal: 35, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),

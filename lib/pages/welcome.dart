@@ -1,9 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:optimabatis/pages/password.dart';
-import 'package:optimabatis/pages/password_creation.dart';
-import 'package:optimabatis/pages/verification.dart';
 import 'package:optimabatis/pages/password_creation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -15,7 +14,6 @@ class WelcomePage extends StatefulWidget {
 }
 
 class _WelcomePageState extends State<WelcomePage> {
-
   final List<String> imgList = [
     'assets/images/Icone_perso.png',
     'assets/images/Technicien_batiment.png',
@@ -43,20 +41,7 @@ class _WelcomePageState extends State<WelcomePage> {
   final formKey = GlobalKey<FormState>();
   final DraggableScrollableController _draggableController = DraggableScrollableController();
   String? phoneNumber;
-  bool isPhoneFieldEmpty = true;
-
-  void checkPhoneField() {
-    if(phoneNumber == null || phoneNumber!.isEmpty) {
-      setState(() {
-        isPhoneFieldEmpty = true;
-      });
-    }
-    else {
-      setState(() {
-        isPhoneFieldEmpty = false;
-      });
-    }
-  }
+  final phoneController = TextEditingController();
 
   @override
   void dispose() {
@@ -71,6 +56,9 @@ class _WelcomePageState extends State<WelcomePage> {
 
   @override
   Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    double screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -79,12 +67,11 @@ class _WelcomePageState extends State<WelcomePage> {
             children: [
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.only(top: 32),
+                  padding: EdgeInsets.only(top: screenHeight * 0.05),
                   decoration: BoxDecoration(
                       color: Color(0xFFD4E9FF)
                   ),
-                  child:
-                  Column(
+                  child: Column(
                     children: [
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -92,30 +79,30 @@ class _WelcomePageState extends State<WelcomePage> {
                           return GestureDetector(
                             onTap: () => carouselController.animateToPage(entry.key),
                             child: Container(
-                              width: 10, // Largeur du cercle
-                              height: 10, // Hauteur du cercle
-                              margin: EdgeInsets.symmetric(horizontal: 4),
+                              width: screenWidth * 0.02, // Largeur du cercle (responsive)
+                              height: screenWidth * 0.02, // Hauteur du cercle (responsive)
+                              margin: EdgeInsets.symmetric(horizontal: screenWidth * 0.01),
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                                 border: Border.all(
                                   color: (currentIndex == entry.key)
                                       ? Color(0xFF3172B8)
                                       : Color(0xFFBDCDDE),
-                                  width: 2, // Largeur de la bordure
+                                  width: 2,
                                 ),
                                 color: (currentIndex == entry.key)
-                                    ? Color(0xFF3172B8) // Cercle plein pour l'actif
-                                    : Colors.transparent, // Transparent pour les inactifs
+                                    ? Color(0xFF3172B8)
+                                    : Colors.transparent,
                               ),
                             ),
                           );
                         }).toList(),
                       ),
-                      SizedBox(height: 16),
+                      SizedBox(height: screenHeight * 0.02),
                       CarouselSlider(
                         carouselController: carouselController,
                         options: CarouselOptions(
-                          height: 533,
+                          height: screenHeight * 0.7,
                           viewportFraction: 1.0,
                           enlargeCenterPage: false,
                           onPageChanged: (index, reason) {
@@ -126,29 +113,28 @@ class _WelcomePageState extends State<WelcomePage> {
                         ),
                         items: imgList
                             .map((item) => Container(
-                            padding: EdgeInsets.symmetric(horizontal: 32),
+                            padding: EdgeInsets.symmetric(horizontal: screenWidth * 0.08),
                             child: Column(
                                 children: [
                                   Image.asset(
                                     item,
                                     fit: BoxFit.cover,
-                                    height: 340,
+                                    height: screenHeight * 0.35, // Responsive height
                                   ),
                                   Text(titleMap[item]!,
                                     style: TextStyle(
                                         color: Color(0xFF3172B8),
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 18
+                                        fontSize: screenWidth * 0.04 // Responsive font size
                                     ),
                                   ),
                                   Text(subtitleMap[item]!,
                                     style: TextStyle(
                                         color: Color(0xFF4B5563),
-                                        fontSize: 13
+                                        fontSize: screenWidth * 0.03 // Responsive font size
                                     ),
                                   )
-                                ])
-                        )
+                                ])),
                         ).toList(),
                       ),
                     ],
@@ -159,9 +145,9 @@ class _WelcomePageState extends State<WelcomePage> {
           ),
           // Bottom Sheet glissable
           DraggableScrollableSheet(
-            initialChildSize: 0.3, // Hauteur initiale (30% de l'écran)
-            minChildSize: 0.3, // Hauteur minimale
-            maxChildSize: 1.0, // Hauteur maximale (plein écran)
+            initialChildSize: 0.3,
+            minChildSize: 0.3,
+            maxChildSize: 1.0,
             controller: _draggableController,
             builder: (context, scrollController) {
               return Container(
@@ -173,168 +159,139 @@ class _WelcomePageState extends State<WelcomePage> {
                   ),
                 ),
                 child: SingleChildScrollView(
-                  controller: scrollController, // Attache le défilement
-                  padding: EdgeInsets.all(32),
-                  child: Container(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                  controller: scrollController,
+                  padding: EdgeInsets.all(screenWidth * 0.08),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      GestureDetector(
+                        onVerticalDragEnd: (details) {
+                          if (details.primaryVelocity! > 0) {
+                            _draggableController.animateTo(
+                              0.3,
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          } else {
+                            _draggableController.animateTo(
+                              1.0,
+                              duration: Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
+                        child: Center(
+                          child: Container(
+                            width: screenWidth * 0.12,
+                            height: 3,
+                            margin: EdgeInsets.only(bottom: screenHeight * 0.02),
+                            decoration: BoxDecoration(
+                              color: Color(0x3B707070),
+                            ),
+                          ),
+                        ),
+                      ),
+                      Text("Entrez votre numéro de téléphone",
+                        style: TextStyle(
+                            color: Color(0xFF1F2937),
+                            fontSize: screenWidth * 0.05,
+                            fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      SizedBox(height: screenHeight * 0.01),
+                      Text("Entrez votre numéro de téléphone pour vous connecter ou pour créer un nouveau compte.",
+                        style: TextStyle(
+                          color: Color(0xFF4B5563),
+                          fontSize: screenWidth * 0.035,
+                        ),
+                      ),
+                      SizedBox(height: screenHeight * 0.02),
+                      Form(
+                          key: formKey,
+                          child: Column(
                             children: [
-                              GestureDetector(
-                                  onVerticalDragEnd: (details) {
-                                    // Ajuste la position du `DraggableScrollableSheet`
-                                    if (details.primaryVelocity! > 0) {
-                                      // Glissement vers le bas -> réduire à 0.3
-                                      _draggableController.animateTo(
-                                        0.3,
-                                        duration: Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    } else {
-                                      // Glissement vers le haut -> agrandir à 1.0
-                                      _draggableController.animateTo(
-                                        1.0,
-                                        duration: Duration(milliseconds: 300),
-                                        curve: Curves.easeInOut,
-                                      );
-                                    }
-                                  },
-                                  child: Center(
-                                child: Container(
-                                  width: 55,
-                                  height: 3,
-                                  margin: EdgeInsets.only(bottom: 16),
-                                  decoration: BoxDecoration(
-                                    color: Color(0x3B707070),
-                                  ),
+                              IntlPhoneField(
+                                controller: phoneController,
+                                decoration: InputDecoration(
+                                    hintText: "Numéro de téléphone",
+                                    hintStyle: TextStyle(
+                                      color: Color(0xFF4F4F4F),
+                                      fontSize: screenWidth * 0.035,
+                                    ),
+                                    border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(32),
+                                        borderSide: BorderSide(color: Color(0xFF707070))
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Color(0xFF707070)),
+                                      borderRadius: BorderRadius.circular(32),
+                                    ),
                                 ),
-                              ),
-                              ),
-                              Text("Entrez votre numéro de téléphone",
-                                style: TextStyle(
-                                    color: Color(0xFF1F2937),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold
-                                ),
-                              ),
-                              SizedBox(height: 10,),
-                              Text("Entrez votre numéro de téléphone pour vous connecter ou pour créer un nouveau compte.",
-                                style: TextStyle(
-                                    color: Color(0xFF4B5563),
-                                    fontSize: 13,
-                                ),
-                              ),
-                              SizedBox(height: 10,),
-                              Form(
-                                  key: formKey,
-                                  child: Column(
-                                    children: [
-                                      IntlPhoneField(
-                                        decoration: InputDecoration(
-                                            hintText: "Numéro de téléphone",
-                                            hintStyle: TextStyle(
-                                              color: Color(0xFF4F4F4F),
-                                              fontSize: 13,
-                                            ),
-                                            border: OutlineInputBorder(
-                                                borderRadius: BorderRadius.circular(32),
-                                                borderSide: BorderSide(color: Color(0xFF707070))
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderSide: BorderSide(color: Color(0xFF707070)),
-                                              borderRadius: BorderRadius.circular(32),
-                                            )
-                                        ),
-                                        keyboardType: TextInputType.phone,
-                                        initialCountryCode: 'BJ',
-                                        onChanged: (phone) {
-                                          phoneNumber = phone.completeNumber;
-                                          checkPhoneField();
-                                        },
-                                        showDropdownIcon: false,
-                                        flagsButtonMargin: EdgeInsets.only(left: 32),
-                                        dropdownTextStyle: TextStyle(
-                                          fontSize: 19,
-                                          fontWeight: FontWeight.w600,
-                                          color: Color(0xFF1F2937),
-                                        ),
-                                      ),
-                                      isPhoneFieldEmpty ?
-                                      Container(
-                                        padding: EdgeInsets.only(top: 3, left: 12),
-                                        child: Text("Veuillez entrez un numéro de téléphone",
-                                          style: TextStyle(
-                                            color: Colors.red[700],
-                                            fontSize: 12.3,
-                                          ),
-                                        ),
-                                      ) :
-                                      SizedBox()
-                                    ],
-                                  )
+                                keyboardType: TextInputType.phone,
+                                initialCountryCode: 'BJ',
+                                onChanged: (phone) {
+                                  phoneNumber = phone.completeNumber;
+                                },
+                                showDropdownIcon: false,
+                                flagsButtonMargin: EdgeInsets.only(left: screenWidth * 0.08),
+                                validator: (value) {
+                                  return (value == null || value.number.isEmpty) ? "Veuillez entrez un numéro de téléphone" : null;
+                                },
                               ),
                             ],
-                          ),
-                          Center(
-                            child: TextButton(
-                                onPressed: () async {
-                                  if(formKey.currentState!.validate() && !isPhoneFieldEmpty) {
-                                    await saveNumber();
-                                    phoneNumber = "";
-                                    Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (context) {
-                                          return CreatePassword();
-                                        })
-                                    );
-                                  }
-                                },
-                                child: Text("Je suis nouveau sur OptimaBâtis",
-                                  style: TextStyle(
-                                    color: Color(0xFF3172B8),
-                                    fontSize: 13
-                                  ),
-                                )
-                            ),
-                          ),
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton(
-                              style: ButtonStyle(
-                                backgroundColor: WidgetStatePropertyAll(Color(0xFF3172B8)),
-                                elevation: WidgetStatePropertyAll(0),
-                                shape: WidgetStatePropertyAll(
-                                    RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(32),
-                                      side: BorderSide(color: Color(0xFF707070), width: 1),
-                                    )
-                                ),
-                                foregroundColor: WidgetStatePropertyAll(Colors.white)
-                              ),
-                              onPressed: () async {
-                                if(formKey.currentState!.validate() && !isPhoneFieldEmpty) {
-                                  await saveNumber();
-                                  phoneNumber = "";
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(builder: (context) {
-                                        return PasswordPage();
-                                      })
-                                  );
-                                }
-                              },
-                              child: Text("Suivant",
-                                style: TextStyle(
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.w600
-                                ),
-                              ),
-                            ),
                           )
-                      ],
-                    ),
+                      ),
+                      Center(
+                        child: TextButton(
+                            onPressed: () async {
+                              if(formKey.currentState!.validate()) {
+                                await saveNumber();
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (context) => CreatePassword())
+                                );
+                              }
+                            },
+                            child: Text("Je suis nouveau sur OptimaBâtis",
+                              style: TextStyle(
+                                color: Color(0xFF3172B8),
+                                fontSize: screenWidth * 0.035,
+                              ),
+                            )
+                        ),
+                      ),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ButtonStyle(
+                              backgroundColor: MaterialStateProperty.all(Color(0xFF3172B8)),
+                              elevation: MaterialStateProperty.all(0),
+                              shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(32),
+                                side: BorderSide(color: Color(0xFF707070), width: 1),
+                              )),
+                              foregroundColor: MaterialStateProperty.all(Colors.white)
+                          ),
+                          onPressed: () async {
+                            if(formKey.currentState!.validate()) {
+                              await saveNumber();
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) {
+                                    return PasswordPage();
+                                  })
+                              );
+                            }
+                          },
+                          child: Text("Suivant",
+                            style: TextStyle(
+                                fontSize: screenWidth * 0.05,
+                                fontWeight: FontWeight.w600
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 ),
               );

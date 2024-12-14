@@ -4,8 +4,8 @@ import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
 import 'package:optimabatis/pages/home.dart';
 
-class informatique extends StatelessWidget {
-  const informatique({super.key});
+class Informatique extends StatelessWidget {
+  const Informatique({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -50,7 +50,7 @@ class informatique extends StatelessWidget {
                           Expanded(child:
                           GestureDetector(onTap: (){
 
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> DetailsInterventionPage()),);
+                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> DetailsInterventionPage(service: item['text'], provenance: "informatique",)),);
                           },
                             child:Image.asset(item['image']!,
                               width: 200,
