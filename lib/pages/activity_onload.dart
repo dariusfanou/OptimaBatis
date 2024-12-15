@@ -22,38 +22,13 @@ class _Activity_onloadState extends State<Activity_onload>
 
   bool loading = true;
   List<Map<String, dynamic>> interventions = [];
+  List<Map<String, dynamic>> interventionsEncours = [];
 
   final Color warningColor = Color(0xFFFFC107);
   final Color successColor = Color(0xFF28A745);
   final Color dangerColor = Color(0xFFdc3545);
   final Color secondaryColor = Color(0xFF007BFF);
   final Color infoColor = Color(0xFF6c757d);
-
-  late TabController _tabController; // Déclarez le TabController
-
-  @override
-  void initState() {
-    super.initState();
-
-    // Initialisez le TabController avec deux onglets
-    _tabController = TabController(length: 2, vsync: this);
-
-    // Ajoutez un écouteur pour détecter le changement d'onglet
-    _tabController.addListener(() {
-      if (_tabController.index == 1 && !_tabController.indexIsChanging) {
-        // Si l'onglet "Historique" est sélectionné, exécutez loadInterventions
-        loadInterventions();
-      }
-    });
-
-    getAuthUser(); // Chargez les informations utilisateur
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose(); // Nettoyez le TabController
-    super.dispose();
-  }
 
   List<dynamic> interventionTag(String status) {
     switch (status) {
@@ -88,10 +63,15 @@ class _Activity_onloadState extends State<Activity_onload>
   Future<void> loadInterventions() async {
     setState(() {
       loading = true;
+      interventionsEncours.clear();
     });
     try {
       interventions = await interventionService.getAll();
-      print(interventions);
+      for(Map<String, dynamic> intervention in interventions) {
+        if(intervention["actif"] == "en cour") {
+          interventionsEncours.add(intervention);
+        }
+      }
       setState(() {});
     } on DioException catch (e) {
       if (e.response != null) {
@@ -119,6 +99,13 @@ class _Activity_onloadState extends State<Activity_onload>
   };
 
   @override
+  void initState() {
+    super.initState();
+    loadInterventions();
+    getAuthUser(); // Chargez les informations utilisateur
+  }
+
+  @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
@@ -132,8 +119,8 @@ class _Activity_onloadState extends State<Activity_onload>
             children: [
               CircleAvatar(
                 radius: 20,
-                backgroundImage: authUser?['profilePicture'] != null
-                    ? NetworkImage(authUser!['profilePicture'])
+                backgroundImage: authUser?['photo'] != null
+                    ? NetworkImage(authUser!['photo'])
                     : const AssetImage('assets/images/profile.png')
                 as ImageProvider,
               ),
@@ -162,7 +149,6 @@ class _Activity_onloadState extends State<Activity_onload>
             ),
           ],
           bottom: TabBar(
-            controller: _tabController, // Associez le TabController ici
             labelColor: Colors.blue,
             unselectedLabelColor: Colors.grey,
             indicatorColor: Colors.blue,
@@ -173,10 +159,53 @@ class _Activity_onloadState extends State<Activity_onload>
           ),
         ),
         body: TabBarView(
-          controller: _tabController, // Associez également le TabController ici
           children: [
             // Contenu pour l'onglet "En cours"
-            Center(
+            loading
+                ? const Center(
+              child: CircularProgressIndicator(), // Indicateur de chargement
+            )
+                : (interventionsEncours.isNotEmpty)
+                ? Container(
+              padding: const EdgeInsets.all(10),
+              child: ListView.builder(
+                itemCount: interventionsEncours.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                      elevation: 0,
+                      child: Column(
+                        children: [
+                          ListTile(
+                            leading: (interventionsEncours[index]["image0"] != null) ? Image.network(interventionsEncours[index]["image0"]) : Icon(Icons.build),
+                            title: Text(Demandes["${interventionsEncours[index]["typedemande"]}"]!, style: TextStyle(fontWeight: FontWeight.bold),),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(interventionsEncours[index]["description"] ?? "Contenu non disponible",),
+                                Text("Date: ${interventionsEncours[index]["date"]}, ${interventionsEncours[index]["heure"]}"),
+                                Container(
+                                  padding: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                                  decoration: BoxDecoration(
+                                      color: interventionTag(interventionsEncours[index]["actif"])[1],
+                                      borderRadius: BorderRadius.circular(20)
+                                  ),
+                                  child: Text(
+                                    interventionTag(interventionsEncours[index]["actif"])[0],
+                                    style: TextStyle(color: Colors.white), // Couleur du texte
+                                  ),
+                                ),
+                              ],
+                            ),
+                            tileColor: Colors.white,
+                          ),
+
+                        ],
+                      )
+                  );
+                },
+              ),
+            )
+                : Center(
               child: Container(
                 padding: const EdgeInsets.all(10),
                 child: Column(
@@ -223,7 +252,7 @@ class _Activity_onloadState extends State<Activity_onload>
                       child: Column(
                         children: [
                           ListTile(
-                            leading: (interventions[index]["image0"] != null) ? Image.network(authUser!['profilePicture']) : Icon(Icons.build),
+                            leading: (interventions[index]["image0"] != null) ? Image.network(interventions[index]["image0"]) : Icon(Icons.build),
                             title: Text(Demandes["${interventions[index]["typedemande"]}"]!, style: TextStyle(fontWeight: FontWeight.bold),),
                             subtitle: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

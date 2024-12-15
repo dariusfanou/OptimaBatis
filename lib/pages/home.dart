@@ -1,4 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:optimabatis/pages/notification.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
@@ -37,6 +40,21 @@ class _HomePageState extends State<HomePage> {
   final Color dangerColor = Color(0xFFdc3545);
   final Color secondaryColor = Color(0xFF007BFF);
 
+  List<dynamic> interventionTag(String status) {
+    switch (status) {
+      case "en cour":
+        return ["En cours", secondaryColor];
+      case "en attente":
+        return ["En attente", warningColor];
+      case "annuler":
+        return ["Annulé", dangerColor];
+      case "terminer":
+        return ["Terminé", successColor];
+      default:
+        return ["Inconnu", Colors.grey];
+    }
+  }
+
   Future<void> getAuthUser() async {
     try {
       final user = await userService.getUser();
@@ -52,10 +70,53 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  final interventionService = InterventionService();
+  List<Map<String, dynamic>> interventions = [];
+  List<Map<String, dynamic>> interventionsTerminer = [];
+  List<Map<String, dynamic>> interventionsEncours = [];
+  Map<String, dynamic> lastIntervention = {};
+
+  loadInterventions() async {
+    try {
+      interventions = await interventionService.getAll();
+      print(interventions);
+      setState(() {});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
+      }
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    }
+
+  }
+
+  Future count() async {
+
+    await loadInterventions();
+
+    lastIntervention = await interventionService.get(interventions.length);
+
+    for (Map<String, dynamic> intervention in interventions) {
+      if(intervention["actif"] == "terminer") {
+        interventionsTerminer.add(intervention);
+      }
+      if(intervention["actif"] == "en cour") {
+        interventionsEncours.add(intervention);
+      }
+    }
+
+  }
+
   @override
   void initState() {
     super.initState();
     getAuthUser();
+    count();
   }
 
   var re_tot = 0, re_ter = 0, re_co = 0, num_req = 0, nomclient='John Doe', cat,price=1000;
@@ -105,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Center(
                           child: Text(
-                            "${re_tot}",
+                            "${interventions.length}",
                             style: TextStyle(color: Colors.white, fontSize: 35),
                           ),
                         ),
@@ -137,7 +198,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Center(
                           child: Text(
-                            "${re_ter}",
+                            "${interventionsTerminer.length}",
                             style: TextStyle(color: Colors.white, fontSize: 35),
                           ),
                         ),
@@ -169,7 +230,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         Center(
                           child: Text(
-                            "${re_co}",
+                            "${interventionsEncours.length}",
                             style: TextStyle(color: Colors.white, fontSize: 35),
                           ),
                         ),
@@ -202,18 +263,19 @@ class _HomePageState extends State<HomePage> {
                     ),
                     Center(
                       child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(height: 10,),
                           Text(
-                            "Requetes #${num_req}",
+                            "Requête #${lastIntervention["id"]}",
                             style: TextStyle(fontSize: 14),
                           ),
                           Text(
-                            "Client:${nomclient}",
+                            "Client: ${lastIntervention["createur_info"]["username"] ?? "John Doe"}",
                             style: TextStyle(fontSize: 11),
                           ),
                           Text(
-                            "Catégories:${cat}",
+                            "Catégorie: ${lastIntervention["service"]}",
                             style: TextStyle(fontSize: 11),
                           )
                         ],
@@ -221,7 +283,10 @@ class _HomePageState extends State<HomePage> {
                     ),
                     SizedBox(width: 8,),
                     CircleAvatar(
-                      backgroundImage: AssetImage("assetName"),
+                      //backgroundImage: AssetImage("assetName"),
+                      backgroundImage: lastIntervention['createur_info']["photo"] != null
+                          ? NetworkImage(lastIntervention['createur_info']["photo"])
+                          : const AssetImage('assets/images/profile.png') as ImageProvider,
                       radius: 25,
                     ),
                     SizedBox(width:15,),
@@ -231,12 +296,12 @@ class _HomePageState extends State<HomePage> {
                         Container(
                             padding: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
                             decoration: BoxDecoration(
-                              color: warningColor,
+                              color: interventionTag(lastIntervention["actif"])[1],
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Center(
                               child: Text(
-                                "En attente",
+                                interventionTag(lastIntervention["actif"])[0],
                                 style: TextStyle(
                                     color: Colors.white),
                               ),
@@ -255,33 +320,33 @@ class _HomePageState extends State<HomePage> {
                 padding: EdgeInsets.all(10),
                 decoration: BoxDecoration(color: Colors.white,
                     borderRadius: BorderRadius.circular(15)),
-                child: Center(child: Row(
+                child: Center(
+                  child: Row(
                   children: [
                     Container(height: 80,width: 65,child: Image(image: AssetImage("assets/images/cloche.png")),),
                     SizedBox(
                       height: 8,width: 5,
                     ),
-                    Center(
-                      child: Column(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(height: 10,),
                           Text(
-                            "Nouvelles requetes créée",
+                            "Nouvelle requête créée",
                             style: TextStyle(fontSize: 14),
                           ),
                           Text(
-                            "${date}",
+                            lastIntervention["created_at"],
                             style: TextStyle(fontSize: 11),
                           ),
                         ],
-                      ),
                     ),
                     SizedBox(width: 30,),
                     TextButton(onPressed: (){}, child:Text("Voir",style: TextStyle(color:Colors.blue),))
                   ],
                 ),)
                 ,),
-              SizedBox(
+              /*SizedBox(
                 height: 30,
               ),
               Container(
@@ -312,7 +377,7 @@ class _HomePageState extends State<HomePage> {
                     )
                   ],),
                 ],),
-              )
+              )*/
             ],
           ),
         )

@@ -51,6 +51,7 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Future saveNumber() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
+    phoneNumber = "+229" + phoneController.text;
     await prefs.setString('number', phoneNumber!);
   }
 
@@ -210,34 +211,53 @@ class _WelcomePageState extends State<WelcomePage> {
                           key: formKey,
                           child: Column(
                             children: [
-                              IntlPhoneField(
+                              TextFormField(
                                 controller: phoneController,
-                                decoration: InputDecoration(
-                                    hintText: "Numéro de téléphone",
-                                    hintStyle: TextStyle(
-                                      color: Color(0xFF4F4F4F),
-                                      fontSize: screenWidth * 0.035,
-                                    ),
-                                    border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(32),
-                                        borderSide: BorderSide(color: Color(0xFF707070))
-                                    ),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(color: Color(0xFF707070)),
-                                      borderRadius: BorderRadius.circular(32),
-                                    ),
-                                ),
                                 keyboardType: TextInputType.phone,
-                                initialCountryCode: 'BJ',
-                                onChanged: (phone) {
-                                  phoneNumber = phone.completeNumber;
-                                },
-                                showDropdownIcon: false,
-                                flagsButtonMargin: EdgeInsets.only(left: screenWidth * 0.08),
+                                decoration: InputDecoration(
+                                  prefix: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(width: 12),
+                                      Image.asset(
+                                        "assets/images/benin.png",
+                                        width: 24,
+                                      ), // Icône
+                                      SizedBox(width: 8),
+                                      Text(
+                                        "+229",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8),
+                                    ],
+                                  ),
+                                  hintText: "Numéro de téléphone",
+                                  hintStyle: TextStyle(
+                                    color: Color(0xFF4F4F4F),
+                                    fontSize: screenWidth * 0.035,
+                                  ),
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(32),
+                                      borderSide: BorderSide(color: Color(0xFF707070))
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Color(0xFF707070)),
+                                    borderRadius: BorderRadius.circular(32),
+                                  ),
+                                ),
                                 validator: (value) {
-                                  return (value == null || value.number.isEmpty) ? "Veuillez entrez un numéro de téléphone" : null;
+                                  if (value == null || value.isEmpty) {
+                                    return "Ce champ est obligatoire";
+                                  }
+                                  else if (value.length != 10) {
+                                    return "Le numéro doit comporter 10 chiffres";
+                                  }
+                                  return null;
                                 },
-                              ),
+                              )
                             ],
                           )
                       ),

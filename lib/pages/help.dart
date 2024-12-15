@@ -59,8 +59,8 @@ class _HelpState extends State<Help> {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundImage: authUser?['profilePicture'] != null
-                  ? NetworkImage(authUser!['profilePicture'])
+              backgroundImage: authUser?['photo'] != null
+                  ? NetworkImage(authUser!['photo'])
                   : const AssetImage('assets/images/profile.png') as ImageProvider,
             ),
             Expanded(
