@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
 import 'package:optimabatis/pages/document_photos.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +21,17 @@ class _DescriptionState extends State<Description> {
   final yearController = TextEditingController();
   final minuteController = TextEditingController();
   final hourController = TextEditingController();
+
+  bool checkDateTime() {
+    int year = int.parse(yearController.text);
+    int month = int.parse(monthController.text);
+    int day = int.parse(dayController.text);
+    int hour = int.parse(hourController.text);
+    int minute = int.parse(minuteController.text);
+    DateTime currentDate = DateTime.now();
+    DateTime userDate = DateTime(year, month, day, hour, minute, 0);
+    return userDate.isAfter(currentDate);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -129,20 +142,43 @@ class _DescriptionState extends State<Description> {
                               children: [
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
                                   children: [
                                     Column(
                                       children: [
                                         Container(
                                           width: 38,
                                           height: 38,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(color: Colors.black),
+                                          ),
                                           child: TextFormField(
+                                            onChanged: (value) {
+                                              if (value.length == 2) {
+                                                FocusScope.of(context).nextFocus();
+                                              }
+                                            },
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            textAlignVertical: TextAlignVertical.center,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(2),
+                                              FilteringTextInputFormatter.digitsOnly
+                                            ],
                                             controller: dayController,
                                             decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
+                                              border: InputBorder.none,
                                               contentPadding: EdgeInsets.all(4),
                                             ),
                                             validator: (String? value) {
-                                              return (value == null || value == "") ? "" : null;
+                                              if(value == null || value.isEmpty) {
+                                                return "";
+                                              }
+                                              else if(int.parse(value) < 1 || int.parse(value) > 31) {
+                                                return "";
+                                              }
+                                              return null;
                                             },
                                           ),
                                         ),
@@ -158,14 +194,36 @@ class _DescriptionState extends State<Description> {
                                         Container(
                                           width: 38,
                                           height: 38,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(color: Colors.black),
+                                          ),
                                           child: TextFormField(
+                                            onChanged: (value) {
+                                              if (value.length == 2) {
+                                                FocusScope.of(context).nextFocus();
+                                              }
+                                            },
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            textAlignVertical: TextAlignVertical.center,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(2),
+                                              FilteringTextInputFormatter.digitsOnly
+                                            ],
                                             controller: monthController,
                                             decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
+                                              border: InputBorder.none,
                                               contentPadding: EdgeInsets.all(4),
                                             ),
                                             validator: (String? value) {
-                                              return (value == null || value == "") ? "" : null;
+                                              if(value == null || value.isEmpty) {
+                                                return "";
+                                              }
+                                              else if(int.parse(value) < 1 || int.parse(value) > 12) {
+                                                return "";
+                                              }
+                                              return null;
                                             },
                                           ),
                                         ),
@@ -179,12 +237,23 @@ class _DescriptionState extends State<Description> {
                                     Column(
                                       children: [
                                         Container(
-                                          width: 76,
+                                          width: 72,
                                           height: 38,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(color: Colors.black),
+                                          ),
                                           child: TextFormField(
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            textAlignVertical: TextAlignVertical.center,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(4),
+                                              FilteringTextInputFormatter.digitsOnly
+                                            ],
                                             controller: yearController,
                                             decoration: InputDecoration(
-                                              border: OutlineInputBorder(),
+                                              border: InputBorder.none,
                                               contentPadding: EdgeInsets.all(4),
                                             ),
                                             validator: (String? value) {
@@ -210,6 +279,7 @@ class _DescriptionState extends State<Description> {
                       Text("Choisissez une plage horaire préféreée si vous avez une préférence."),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
 
                           // Sélection du jour
@@ -230,13 +300,31 @@ class _DescriptionState extends State<Description> {
                                             border: Border.all(color: Colors.black),
                                           ),
                                           child: TextFormField(
+                                            onChanged: (value) {
+                                              if (value.length == 2) {
+                                                FocusScope.of(context).nextFocus();
+                                              }
+                                            },
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            textAlignVertical: TextAlignVertical.center,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(2),
+                                              FilteringTextInputFormatter.digitsOnly
+                                            ],
                                             controller: hourController,
                                             decoration: InputDecoration(
                                               border: InputBorder.none,
                                               contentPadding: EdgeInsets.all(4),
                                             ),
                                             validator: (String? value) {
-                                              return (value == null || value == "") ? "" : null;
+                                              if(value == null || value.isEmpty) {
+                                                return "";
+                                              }
+                                              else if(int.parse(value) < 0 || int.parse(value) > 23) {
+                                                return "";
+                                              }
+                                              return null;
                                             },
                                           ),
                                         ),
@@ -257,13 +345,26 @@ class _DescriptionState extends State<Description> {
                                             border: Border.all(color: Colors.black),
                                           ),
                                           child: TextFormField(
+                                            keyboardType: TextInputType.number,
+                                            textAlign: TextAlign.center,
+                                            textAlignVertical: TextAlignVertical.center,
+                                            inputFormatters: [
+                                              LengthLimitingTextInputFormatter(2),
+                                              FilteringTextInputFormatter.digitsOnly
+                                            ],
                                             controller: minuteController,
                                             decoration: InputDecoration(
                                               border: InputBorder.none,
                                               contentPadding: EdgeInsets.all(4),
                                             ),
                                             validator: (String? value) {
-                                              return (value == null || value == "") ? "" : null;
+                                              if(value == null || value.isEmpty) {
+                                                return "";
+                                              }
+                                              else if(int.parse(value) < 0 || int.parse(value) > 59) {
+                                                return "";
+                                              }
+                                              return null;
                                             },
                                           ),
                                         ),
@@ -305,10 +406,17 @@ class _DescriptionState extends State<Description> {
                       await prefs.setString("description", descriptionController.text);
                       await prefs.setString("date", yearController.text + "-" + monthController.text + "-" + dayController.text);
                       await prefs.setString("hour", hourController.text + ":" + minuteController.text);
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => DocumentPhotoPage()),
-                      );
+                      if(checkDateTime()) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => DocumentPhotoPage()),
+                        );
+                      }
+                      else {
+                        Fluttertoast.showToast(msg: "La date est invalide");
+                      }
+                    } else {
+                      Fluttertoast.showToast(msg: "Entrez des valeurs valides dans chaque champ");
                     }
                   },
                   child: Text("Confirmer",

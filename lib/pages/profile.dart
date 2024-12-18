@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
+import 'package:optimabatis/pages/authentification.dart';
 import 'package:optimabatis/pages/welcome.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'custom_navbar.dart';
@@ -175,7 +176,14 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     leading: const Icon(Icons.lock),
                     title: const Text('Modifier mot de passe'),
-                    onTap: () {},
+                    onTap: () {
+                      /*Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) {
+                            return AuthentificationPage();
+                          })
+                      );*/
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.delete),

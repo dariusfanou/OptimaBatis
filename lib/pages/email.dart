@@ -20,8 +20,10 @@ class _EmailPageState extends State<EmailPage> {
   final formKey = GlobalKey<FormState>();
   final emailController = TextEditingController();
   final userService = UserService();
+  bool isLoading = false;
+  bool loading = false;
 
-  loginUser() async {
+  loginUser(String goal) async {
 
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -41,7 +43,7 @@ class _EmailPageState extends State<EmailPage> {
       prefs.setString("token", authUser['access']!);
 
       // Afficher un message de succès
-      Fluttertoast.showToast(msg: "Vous êtes connecté");
+      Fluttertoast.showToast(msg: "Vous êtes connecté(e)");
 
       // Rediriger vers la page d'accueil
       Navigator.push(
@@ -52,24 +54,53 @@ class _EmailPageState extends State<EmailPage> {
       );
 
     } on DioException catch (e) {
-
-      // Quand erreur de requête, afficher les erreurs et le status code
+      // Gérer les erreurs de la requête
+      print(e.response?.statusCode);
       if (e.response != null) {
-        print(e.response?.data);
-        print(e.response?.statusCode);
+        if (e.response?.statusCode == 400 || e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Identifiants invalides.");
+        } else {
+          Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
+        }
       } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.requestOptions);
-        print(e.message);
+        // Gérer les erreurs réseau
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+          Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
+        } else if (e.type == DioExceptionType.unknown) {
+          Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
+        } else {
+          Fluttertoast.showToast(msg: "Une erreur est survenue.");
+        }
       }
-
-      Fluttertoast.showToast(msg: "Une erreur est survenue");
-
+    } catch (e) {
+      // Gérer d'autres types d'erreurs
+      Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
+    } finally {
+      if(goal == "email") {
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          loading = false;
+        });
+      }
     }
 
   }
 
-  createUser() async {
+  createUser(String goal) async {
+
+    if(goal == "email") {
+      setState(() {
+        isLoading = false;
+      });
+    } else {
+      setState(() {
+        loading = false;
+      });
+    }
+
     try {
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -122,7 +153,7 @@ class _EmailPageState extends State<EmailPage> {
 
       Fluttertoast.showToast(msg: "Compte créé avec succès");
 
-      await loginUser();
+      await loginUser(goal);
 
       await prefs.remove("name");
       await prefs.remove("firstname");
@@ -133,18 +164,36 @@ class _EmailPageState extends State<EmailPage> {
       await prefs.remove("date");
 
     } on DioException catch (e) {
-
+      // Gérer les erreurs de la requête
+      print(e.response?.statusCode);
       if (e.response != null) {
-        print(e.response?.data);
-        print(e.response?.statusCode);
+        if (e.response?.statusCode == 400) {
+          if (e.response?.data["numtelephone"] != null) {
+            Fluttertoast.showToast(msg: "Un compte existe déjà avec ce numéro.");
+          }
+          else if(e.response?.data["email"] != null) {
+            Fluttertoast.showToast(msg: "Un compte existe déjà avec cet email.");
+          }
+        }
+        else if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Données invalides.");
+        }
+        else {
+          Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
+        }
       } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.requestOptions);
-        print(e.message);
+        // Gérer les erreurs réseau
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+          Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
+        } else if (e.type == DioExceptionType.unknown) {
+          Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
+        } else {
+          Fluttertoast.showToast(msg: "Une erreur est survenue.");
+        }
       }
-
-      Fluttertoast.showToast(msg: "Une erreur est survenue");
-
+    } catch (e) {
+      // Gérer d'autres types d'erreurs
+      Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
     }
 
   }
@@ -239,10 +288,16 @@ class _EmailPageState extends State<EmailPage> {
                   ),
                   onPressed: () async {
                     if(formKey.currentState!.validate()) {
-                      await createUser();
+                      await createUser("email");
                     }
                   },
-                  child: Text("Confirmer",
+                  child: isLoading ?
+                  SizedBox(
+                      height: 19,
+                      width: 19,
+                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2,)
+                  ) :
+                  Text("Confirmer",
                     style: TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.w600
@@ -265,9 +320,15 @@ class _EmailPageState extends State<EmailPage> {
                       foregroundColor: WidgetStatePropertyAll(Colors.white)
                   ),
                   onPressed: () async {
-                    await createUser();
+                    await createUser("plustard");
                   },
-                  child: Text("Plus tard",
+                  child: loading ?
+                  SizedBox(
+                      height: 19,
+                      width: 19,
+                      child: CircularProgressIndicator(color: Color(0xFF3172B8), strokeWidth: 2,)
+                  ) :
+                  Text("Plus tard",
                     style: TextStyle(
                         fontSize: 19,
                         fontWeight: FontWeight.w600,

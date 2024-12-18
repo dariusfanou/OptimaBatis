@@ -1,5 +1,6 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:optimabatis/pages/email.dart';
 import 'package:file_picker/file_picker.dart';
@@ -355,6 +356,9 @@ class _PersonalDatasState extends State<PersonalDatas> {
                                       return EmailPage();
                                     })
                                 );
+                              }
+                              if(!termsOfUse!) {
+                                Fluttertoast.showToast(msg: "Veuillez accepter les conditions générales d'utilisation.");
                               }
                             },
                             child: Text("Suivant",

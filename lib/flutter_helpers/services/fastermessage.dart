@@ -1,38 +1,20 @@
-import 'package:dio/dio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
-import '../dio_instance.dart';
+import 'package:dio/dio.dart';
 
 class FasterMessage {
 
-  Dio api = configureDio();
+  final dio = Dio();
 
-  Future<Map<String, dynamic>> login (Map<String, dynamic> data) async{
+  final key = base64Encode(utf8.encode("assi9058:c7f2ca2d"));
 
-    final response =  await api.post('tokenObtain/', data: data);
+  Future<Map<String, dynamic>> sendCode(Map<String, dynamic> data) async {
 
-    print(response.data["access"]);
-
-    return response.data;
-  }
-
-  Future<Map<String, dynamic>> create (Map<String, dynamic> data) async{
-
-    final response = await api.post('immobilierpannehelper/usercreate', data: data);
-
-    return response.data;
-  }
-
-  Future<Map<String, dynamic>> getUser () async{
-
-    final pref = await SharedPreferences.getInstance();
-    String token = pref.getString("token") ?? "";
-
-    if (token != "") {
-      api.options.headers['AUTHORIZATION'] = 'Bearer $token';
+    if (key != "") {
+      dio.options.headers['AUTHORIZATION'] = 'Basic $key';
     }
 
-    final response = await api.get('immobilierpannehelper/usermodif/1/');
+    final response = await dio.post('https://api.fastermessage.com/v1/sms/send', data: data);
 
     return response.data;
   }

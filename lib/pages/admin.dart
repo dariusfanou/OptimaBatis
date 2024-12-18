@@ -1,4 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
 
 class DashBoard extends StatefulWidget {
   const DashBoard({super.key});
@@ -8,13 +11,82 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
-  var re_tot = 0, re_ter = 0, re_co = 0, num_req = 0, nomclient='John Doe', cat,price=1000;
-  var date= "12 decembre2024, 20:20";
+
+  final Color warningColor = Color(0xFFFFC107);
+  final Color successColor = Color(0xFF28A745);
+  final Color dangerColor = Color(0xFFdc3545);
+  final Color secondaryColor = Color(0xFF007BFF);
+
+  List<dynamic> interventionTag(String status) {
+    switch (status) {
+      case "en cour":
+        return ["En cours", secondaryColor];
+      case "en attente":
+        return ["En attente", warningColor];
+      case "annuler":
+        return ["Annulé", dangerColor];
+      case "terminer":
+        return ["Terminé", successColor];
+      default:
+        return ["Inconnu", Colors.grey];
+    }
+  }
+
+  final interventionService = InterventionService();
+  List<Map<String, dynamic>> interventions = [];
+  List<Map<String, dynamic>> interventionsTerminer = [];
+  List<Map<String, dynamic>> interventionsEncours = [];
+  Map<String, dynamic> lastIntervention = {};
+
+  loadInterventions() async {
+    try {
+      interventions = await interventionService.getAll();
+      print(interventions);
+      setState(() {});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
+      }
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    }
+
+  }
+
+  Future count() async {
+
+    await loadInterventions();
+
+    lastIntervention = await interventionService.get(interventions.length);
+
+    for (Map<String, dynamic> intervention in interventions) {
+      if(intervention["actif"] == "terminer") {
+        interventionsTerminer.add(intervention);
+      }
+      if(intervention["actif"] == "en cour") {
+        interventionsEncours.add(intervention);
+      }
+    }
+
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    count();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: Color(0xFFB0ACAC),
       appBar: AppBar(
+        backgroundColor: Color(0xFFB0ACAC),
+        automaticallyImplyLeading: false,
         title: Text(
           "Tableau de Bord",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -25,246 +97,247 @@ class _DashBoardState extends State<DashBoard> {
         toolbarHeight: 80,
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            SizedBox(height: 10,),
-            Row(
+          child: Container(
+            padding: EdgeInsets.all(10),
+            child: Column(
               children: [
-                SizedBox(
-                  height: 80,
-                  width: 10,
-                ),
-                Container(
-                  width: 120,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Colors.indigoAccent,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Icon(
-                        Icons.construction,
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Center(
-                        child: Text(
-                          "${re_tot}",
-                          style: TextStyle(color: Colors.white, fontSize: 35),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Requetes totales",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                Container(
-                  width: 120,
-                  height: 150,
-                  decoration: BoxDecoration(
-                      color: Colors.green,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Icon(
-                        Icons.check_box,
-                        color: Colors.greenAccent,
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Center(
-                        child: Text(
-                          "${re_ter}",
-                          style: TextStyle(color: Colors.white, fontSize: 35),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Requetes terminées",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-                Container(
-                  width: 120,
-                  height: 150,
-                  decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(15)),
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: 5,
-                      ),
-                      Icon(
-                        Icons.hourglass_top,
-                      ),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Center(
-                        child: Text(
-                          "${re_co}",
-                          style: TextStyle(color: Colors.white, fontSize: 35),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        "Requetes en cours",
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  width: 8,
-                ),
-              ],
-            ),
-            const SizedBox(height: 20,),
-            Container(
-                width: 350,
-                height: 80,
-                decoration: BoxDecoration(color: Colors.white,
-                borderRadius: BorderRadius.circular(15)),
-                child: Center(child: Row(
+                SizedBox(height: 10,),
+                Row(
                   children: [
-                    Container(height: 70,width: 65,child: Image(image: AssetImage("assetName")),),
                     SizedBox(
-                      height: 8,width: 5,
+                      height: 80,
+                      width: 10,
                     ),
-                    Center(
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      width: MediaQuery.of(context).size.width / 3.5,
+                      decoration: BoxDecoration(
+                        color: secondaryColor,
+                        borderRadius: BorderRadius.circular(15),
+                      ),
                       child: Column(
                         children: [
-                          SizedBox(height: 10,),
-                          Text(
-                            "Requetes #${num_req}",
-                            style: TextStyle(fontSize: 14),
+                          Image.asset("assets/images/outils.png"),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Center(
+                            child: Text(
+                              "${interventions.length}",
+                              style: TextStyle(color: Colors.white, fontSize: 35),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
                           ),
                           Text(
-                            "Client:${nomclient}",
-                            style: TextStyle(fontSize: 11),
+                            "Requêtes totales",
+                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
                           ),
-                          Text(
-                            "Catégories:${cat}",
-                            style: TextStyle(fontSize: 11),
-                          )
                         ],
                       ),
                     ),
-                    SizedBox(width: 8,),
-                    CircleAvatar(
-                      backgroundImage: AssetImage("assetName"),
-                      radius: 25,
+                    SizedBox(
+                      width: 8,
                     ),
-                    SizedBox(width:15,),
-                    Column(
-                      children: [
-                        SizedBox(height: 5,),
-                        Container(
-                            width: 100,
-                            height: 30,
-                            decoration: BoxDecoration(
-                              color: Colors.orange,
-                              borderRadius: BorderRadius.circular(15),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      width: MediaQuery.of(context).size.width / 3.5,
+                      decoration: BoxDecoration(
+                          color: successColor,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Column(
+                        children: [
+                          Image.asset("assets/images/check.png"),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Center(
+                            child: Text(
+                              "${interventionsTerminer.length}",
+                              style: TextStyle(color: Colors.white, fontSize: 35),
                             ),
-                            child: Center(
-                              child: Text(
-                                "En attente",
-                                style: TextStyle(
-                                    fontSize: 18, color: Colors.white),
-                              ),
-                            )),
-                        SizedBox(height: 10,),
-                        Icon(Icons.search,size: 30,)
-                      ],
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Requêtes terminées",
+                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 8,
+                    ),
+                    Container(
+                      padding: EdgeInsets.all(10),
+                      width: MediaQuery.of(context).size.width / 3.5,
+                      decoration: BoxDecoration(
+                          color: warningColor,
+                          borderRadius: BorderRadius.circular(15)),
+                      child: Column(
+                        children: [
+                          Image.asset("assets/images/time.png"),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Center(
+                            child: Text(
+                              "${interventionsEncours.length}",
+                              style: TextStyle(color: Colors.white, fontSize: 35),
+                            ),
+                          ),
+                          SizedBox(
+                            height: 5,
+                          ),
+                          Text(
+                            "Requêtes en cours",
+                            style: TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.bold),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 8,
                     ),
                   ],
-                ),)
-                ,),
-            SizedBox(
-              height: 30,
-            ),
-            Container(
-              width: 350,
-              height: 70,
-              decoration: BoxDecoration(color: Colors.white,
-                  borderRadius: BorderRadius.circular(15)),
-              child: Center(child: Row(
-                children: [
-                  Container(height: 80,width: 65,child: Image(image: AssetImage("assetName")),),
-                  SizedBox(
-                    height: 8,width: 5,
-                  ),
-                  Center(
-                    child: Column(
+                ),
+                const SizedBox(height: 20,),
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Colors.white,
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Center(child: Row(
+                    children: [
+                      Container(height: 70,width: 65,child: Image(image: AssetImage("assets/images/plomberie.png")),),
+                      SizedBox(
+                        height: 8,width: 5,
+                      ),
+                      Center(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 10,),
+                            Text(
+                              "Requête #${lastIntervention["id"]!}",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              "Client: ${lastIntervention["createur_info"]!["username"]! ?? "John Doe"}",
+                              style: TextStyle(fontSize: 11),
+                            ),
+                            Text(
+                              "Catégorie: ${lastIntervention["service"]!}",
+                              style: TextStyle(fontSize: 11),
+                            )
+                          ],
+                        ),
+                      ),
+                      SizedBox(width: 8,),
+                      CircleAvatar(
+                        //backgroundImage: AssetImage("assetName"),
+                        backgroundImage: lastIntervention['createur_info']!["photo"]! != null
+                            ? NetworkImage(lastIntervention['createur_info']!["photo"]!)
+                            : const AssetImage('assets/images/profile.png') as ImageProvider,
+                        radius: 25,
+                      ),
+                      SizedBox(width:15,),
+                      Column(
+                        children: [
+                          SizedBox(height: 5,),
+                          Container(
+                              padding: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                              decoration: BoxDecoration(
+                                color: interventionTag(lastIntervention["actif"]!)[1],
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  interventionTag(lastIntervention["actif"]!)[0],
+                                  style: TextStyle(
+                                      color: Colors.white),
+                                ),
+                              )),
+                          SizedBox(height: 10,),
+                          Icon(Icons.search,size: 30,)
+                        ],
+                      ),
+                    ],
+                  ),)
+                  ,),
+                SizedBox(
+                  height: 30,
+                ),
+                Container(
+                  padding: EdgeInsets.all(10),
+                  decoration: BoxDecoration(color: Colors.white,
+                      borderRadius: BorderRadius.circular(15)),
+                  child: Center(
+                    child: Row(
                       children: [
-                        SizedBox(height: 10,),
-                        Text(
-                          "Nouvelles requetes créée",
-                          style: TextStyle(fontSize: 14),
+                        Container(height: 80,width: 65,child: Image(image: AssetImage("assets/images/cloche.png")),),
+                        SizedBox(
+                          height: 8,width: 5,
                         ),
-                        Text(
-                          "${date}",
-                          style: TextStyle(fontSize: 11),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 10,),
+                            Text(
+                              "Nouvelle requête créée",
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Text(
+                              lastIntervention["created_at"]!,
+                              style: TextStyle(fontSize: 11),
+                            ),
+                          ],
                         ),
+                        SizedBox(width: 30,),
+                        TextButton(onPressed: (){}, child:Text("Voir",style: TextStyle(color:Colors.blue),))
                       ],
-                    ),
-                  ),
-                  SizedBox(width: 30,),
-                  TextButton(onPressed: (){}, child:Text("Voir",style: TextStyle(color:Colors.blue,fontSize: 14),))
-                ],
-              ),)
-              ,),
-            SizedBox(
-              height: 30,
+                    ),)
+                  ,),
+                /*SizedBox(
+                height: 30,
+              ),
+              Container(
+                padding: EdgeInsets.all(10),
+                decoration: BoxDecoration(color: Colors.white,
+                    borderRadius: BorderRadius.circular(15)),
+                child: Row(children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                    Text("${price} FCFA",style: TextStyle(color: successColor, fontWeight: FontWeight.bold)),
+                    SizedBox(height: 5,),
+                    Text("Transaction par ${nomclient}",)
+                  ],),
+                  SizedBox(width: 10,),
+                  Column(children: [
+                    Text("${date} ", style: TextStyle(fontSize: 12),),
+                    SizedBox(height: 25,width: 15,),
+                    Container(
+                      padding: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                      decoration: BoxDecoration(
+                          color: successColor,
+                          borderRadius: BorderRadius.circular(10)
+                      ),
+                      child: Center(
+                        child: Text("Réussi",style: TextStyle(color: Colors.white),),
+                      ),
+                    )
+                  ],),
+                ],),
+              )*/
+              ],
             ),
-            Container(
-              width: 350,
-              height: 80,
-              decoration: BoxDecoration(color: Colors.white,
-                  borderRadius: BorderRadius.circular(15)),
-              child: Row(children: [
-                Column(children: [
-                  Text("${price} FCFA",style: TextStyle(color:Colors.green)),
-                  SizedBox(height: 5,),
-                  Text("Transaction par ${nomclient}",)
-                ],),
-                SizedBox(width: 10,),
-                Column(children: [
-                  Text("${date} "),
-                  SizedBox(height: 25,width: 15,),
-                  Container(width:110,height:30,decoration: BoxDecoration(color: Colors.green,borderRadius: BorderRadius.circular(10)),child: Center(child: Text("Réussi",style: TextStyle(color: Colors.white),),),)
-                ],),
-              ],),
-            )
-          ],
-        ),
+          )
       ),
     );
   }

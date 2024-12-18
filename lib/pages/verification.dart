@@ -1,8 +1,14 @@
 import 'dart:async';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:optimabatis/pages/home.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:optimabatis/flutter_helpers/services/fastermessage.dart';
+import 'package:optimabatis/pages/password.dart';
 import 'package:optimabatis/pages/password_creation.dart';
+import 'dart:math';
+
+import 'package:shared_preferences/shared_preferences.dart';
 
 class VerificationPage extends StatefulWidget {
   const VerificationPage({super.key, required this.goal});
@@ -24,48 +30,128 @@ class _VerificationPageState extends State<VerificationPage> {
   bool resent = false;
   final formKey = GlobalKey<FormState>();
 
-  // Fonction pour démarrer le timer
-  void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (_remainingTime > 0) {
-        setState(() {
-          _remainingTime--;
-        });
-      } else {
-        _timer?.cancel();
-        setState(() {
-          resent = true;
-        });
+  bool _isDisposed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    generateRandomCode();
+    sendCode();
+    _startTimer();
+    _controller4.addListener(() {
+      if (_controller4.text.length == 1) {
+        if (formKey.currentState!.validate()) {
+          checkCode();
+        }
       }
     });
   }
 
   @override
-  void initState() {
-    super.initState();
-    _startTimer();
-    _controller4.addListener(() {
-      if (_controller4.text.length == 1) {
-        if (formKey.currentState!.validate()) {
-          if(widget.goal == "connexion") {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => HomePage()
-                )
-            );
-          }
-          else if (widget.goal == "inscription"){
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => CreatePassword()
-                )
-            );
-          }
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    _timer?.cancel();
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingTime > 0) {
+        if (!_isDisposed) {
+          setState(() {
+            _remainingTime--;
+          });
+        }
+      } else {
+        _timer?.cancel();
+        if (!_isDisposed) {
+          setState(() {
+            resent = true;
+            _code = "";
+            Fluttertoast.showToast(msg: "Code expiré");
+          });
         }
       }
     });
+  }
+
+  final fastermessage = FasterMessage();
+  String? _code;
+
+  /// Fonction pour générer un code aléatoire de 4 chiffres
+  void generateRandomCode() {
+    Random random = Random();
+    int code = random.nextInt(9000) + 1000; // Entre 1000 et 9999
+    _code = code.toString();
+  }
+
+  sendCode() async {
+
+    try {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      String? number = await prefs.getString("number");
+
+      // Prépare les données à envoyer
+      Map<String, dynamic> data = {
+        'from': "FASTERMSG",
+        'to': number!,
+        'text': _code! + " est votre code secret. Ne le partagez pas."
+      };
+
+      // Lancer la requête
+      await fastermessage.sendCode(data);
+
+    } on DioException catch (e) {
+      // Gérer les erreurs de la requête
+      if (!_isDisposed) { // Vérifiez si la page est toujours active avant d'utiliser setState ou Fluttertoast
+        print(e.response?.statusCode);
+        if (e.response != null) {
+          if (e.response?.data["status"] == false) {
+            Fluttertoast.showToast(msg: "Le code n'a pas pu être envoyer. Recommencez");
+          }
+        } else {
+          // Gérer les erreurs réseau
+          if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+            Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
+          } else if (e.type == DioExceptionType.unknown) {
+            Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
+          } else {
+            Fluttertoast.showToast(msg: "Une erreur est survenue.");
+          }
+        }
+      }
+    } catch (e) {
+      // Gérer d'autres types d'erreurs
+      if (!_isDisposed) {
+        Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
+      }
+    }
+
+  }
+
+  void checkCode() {
+    String code = _controller1.text + _controller2.text + _controller3.text + _controller4.text;
+    if(code == _code) {
+      if(widget.goal == "connexion") {
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => PasswordPage()
+            )
+        );
+      }
+      else if (widget.goal == "inscription"){
+        Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => CreatePassword()
+            )
+        );
+      }
+    }
+    else {
+      Fluttertoast.showToast(msg: "Code invalide");
+    }
   }
 
   @override
@@ -99,7 +185,7 @@ class _VerificationPageState extends State<VerificationPage> {
               ),
             ),
             SizedBox(height: 16,),
-            Text("Un code a été envoyé par SMS au numéro de téléphone que vous avez renseigné. Ce code expire dans 5 minutes pour votre sécurité.",
+            Text("Un code a été envoyé par SMS au numéro de téléphone que vous avez renseigné. Ce code expire dans 60 secondes pour votre sécurité.",
               style: TextStyle(
                   fontSize: 13,
                   color: Color(0xFF4B5563)
@@ -240,7 +326,9 @@ class _VerificationPageState extends State<VerificationPage> {
                       ),
                       foregroundColor: WidgetStatePropertyAll(Colors.white)
                   ),
-                  onPressed: () {
+                  onPressed: () async {
+                    generateRandomCode();
+                    await sendCode();
                     setState(() {
                       _remainingTime = 60;
                       resent = false;

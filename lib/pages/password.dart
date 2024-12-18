@@ -19,24 +19,23 @@ class _PasswordPageState extends State<PasswordPage> {
   final passwordController = TextEditingController();
   bool hidePassword = true;
   final userService = UserService();
+  bool isLoading = false;
 
   loginUser() async {
+
+    setState(() {
+      isLoading = true;
+    });
 
     try {
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       String? number = await prefs.getString('number');
-
-      if(number == "+22940285569") {
-        number = "40285569";
-      }
 
       // Prépare les données à envoyer
       Map<String, dynamic> data = {
         'numtelephone': number,
         'password': passwordController.text
       };
-
-      print(data);
 
       // Lancer la requête
       Map<String, dynamic> authUser = await userService.login(data);
@@ -45,7 +44,7 @@ class _PasswordPageState extends State<PasswordPage> {
       prefs.setString("token", authUser['access']!);
 
       // Afficher un message de succès
-      Fluttertoast.showToast(msg: "Vous êtes connecté");
+      Fluttertoast.showToast(msg: "Vous êtes connecté(e)");
 
       await prefs.remove("number");
 
@@ -58,19 +57,31 @@ class _PasswordPageState extends State<PasswordPage> {
       );
 
     } on DioException catch (e) {
-
-      // Quand erreur de requête, afficher les erreurs et le status code
+      // Gérer les erreurs de la requête
+      print(e.response?.statusCode);
       if (e.response != null) {
-        print(e.response?.data);
-        print(e.response?.statusCode);
+        if (e.response?.statusCode == 400 || e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Identifiants invalides.");
+        } else {
+          Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
+        }
       } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.requestOptions);
-        print(e.message);
+        // Gérer les erreurs réseau
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+          Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
+        } else if (e.type == DioExceptionType.unknown) {
+          Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
+        } else {
+          Fluttertoast.showToast(msg: "Une erreur est survenue.");
+        }
       }
-
-      Fluttertoast.showToast(msg: "Une erreur est survenue");
-
+    } catch (e) {
+      // Gérer d'autres types d'erreurs
+      Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
 
   }
@@ -93,8 +104,7 @@ class _PasswordPageState extends State<PasswordPage> {
           ),
         ),
       ),
-      body: Expanded(
-          child: Container(
+      body: Container(
             padding: EdgeInsets.only(left: 32, right: 32, bottom: 32),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,7 +164,7 @@ class _PasswordPageState extends State<PasswordPage> {
                     ),
                     TextButton(
                         onPressed: () {
-                
+
                         },
                         child: Text("J'ai oublié mon mot de passe",
                           style: TextStyle(
@@ -169,22 +179,28 @@ class _PasswordPageState extends State<PasswordPage> {
                   width: double.infinity,
                   child: ElevatedButton(
                     style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(Color(0xFF3172B8)),
-                        elevation: WidgetStatePropertyAll(0),
-                        shape: WidgetStatePropertyAll(
+                        backgroundColor: WidgetStateProperty.all(Color(0xFF3172B8)),
+                        elevation: WidgetStateProperty.all(0),
+                        shape: WidgetStateProperty.all(
                             RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(32),
                               side: BorderSide(color: Color(0xFF707070), width: 1),
                             )
                         ),
-                        foregroundColor: WidgetStatePropertyAll(Colors.white)
+                        foregroundColor: WidgetStateProperty.all(Colors.white)
                     ),
                     onPressed: () async {
                       if(formKey.currentState!.validate()) {
                         await loginUser();
                       }
                     },
-                    child: Text("Confirmer",
+                    child: isLoading ?
+                    SizedBox(
+                        height: 19,
+                        width: 19,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2,)
+                    ) :
+                    Text("Confirmer",
                       style: TextStyle(
                           fontSize: 19,
                           fontWeight: FontWeight.w600
@@ -195,7 +211,6 @@ class _PasswordPageState extends State<PasswordPage> {
               ],
             ),
           ),
-      )
     );
   }
 }

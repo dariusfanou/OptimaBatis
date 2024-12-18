@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
+import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/document_photos.dart';
 import 'package:optimabatis/pages/felicitation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,10 +18,15 @@ class Preference extends StatefulWidget {
 class _PreferenceState extends State<Preference> {
   int? _value = 1;
   String? preference;
+  bool loading = false;
 
   final interventionService = InterventionService();
 
   createIntervention() async {
+    setState(() {
+      loading = true;
+    });
+
     try {
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -65,8 +71,34 @@ class _PreferenceState extends State<Preference> {
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
 
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
 
+  }
+  final userService = UserService();
+  Map<String, dynamic>? authUser;
+  bool isLoading = true;
+
+  Future<void> getAuthUser() async {
+    try {
+      final user = await userService.getUser();
+      setState(() {
+        authUser = user;
+        isLoading = false;
+        print(authUser);
+      });
+    } catch (e) {
+      print('Erreur lors de la récupération des données utilisateur : $e');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getAuthUser();
   }
 
   @override
@@ -88,7 +120,11 @@ class _PreferenceState extends State<Preference> {
         centerTitle: true,
         elevation: 0,
       ),
-      body: Padding(
+      body: isLoading
+          ? const Center(
+        child: CircularProgressIndicator(),
+      ) :
+      Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -163,9 +199,7 @@ class _PreferenceState extends State<Preference> {
                 ),
                 onPressed: () async {
                   if (_value == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text("Veuillez sélectionner une option")),
-                    );
+                    Fluttertoast.showToast(msg: "Veuillez sélectionner une option");
                     return;
                   }
                   switch (_value) {
@@ -181,7 +215,13 @@ class _PreferenceState extends State<Preference> {
                   }
                   await createIntervention();
                 },
-                child: Text("Envoyez la demande",
+                child: loading ?
+                    SizedBox(
+                      height: 19,
+                        width: 19,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2,)
+                    ) :
+                Text("Envoyez la demande",
                   style: TextStyle(
                       fontSize: 19,
                       fontWeight: FontWeight.w600
@@ -203,9 +243,17 @@ class _PreferenceState extends State<Preference> {
           value: value,
           groupValue: _value,
           onChanged: (value) {
-            setState(() {
-              _value = value;
-            });
+            if(value == 2 && (authUser!["email"] == null || authUser!["email"].isEmpty)) {
+              setState(() {
+                _value = 1;
+                Fluttertoast.showToast(msg: "Vous n'avez pas renseigner d'email");
+              });
+            }
+            else {
+              setState(() {
+                _value = value;
+              });
+            }
           },
         ),
         Expanded(

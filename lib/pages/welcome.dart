@@ -1,9 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:optimabatis/pages/password.dart';
 import 'package:optimabatis/pages/password_creation.dart';
+import 'package:optimabatis/pages/verification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -268,7 +267,7 @@ class _WelcomePageState extends State<WelcomePage> {
                                 await saveNumber();
                                 Navigator.push(
                                     context,
-                                    MaterialPageRoute(builder: (context) => CreatePassword())
+                                    MaterialPageRoute(builder: (context) => VerificationPage(goal: "inscription"))
                                 );
                               }
                             },
