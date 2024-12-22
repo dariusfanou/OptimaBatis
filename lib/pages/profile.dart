@@ -4,12 +4,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
-import 'package:optimabatis/main.dart';
-import 'package:optimabatis/pages/activity_onload.dart';
-import 'package:optimabatis/pages/authentification.dart';
-import 'package:optimabatis/pages/edit_profile.dart';
-import 'package:optimabatis/pages/notification.dart';
-import 'package:optimabatis/pages/welcome.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'custom_navbar.dart';
@@ -196,10 +190,10 @@ class _ProfilePageState extends State<ProfilePage> {
                     leading: const Icon(Icons.edit),
                     title: const Text('Modifier le profil'),
                     onTap: () {
-                      context.go("/editProfile");
+                      context.push("/editProfile");
                     },
                   ),
-                  ListTile(
+                  /*ListTile(
                     leading: const Icon(Icons.translate),
                     title: const Text('Langue'),
                     onTap: () {},
@@ -208,22 +202,22 @@ class _ProfilePageState extends State<ProfilePage> {
                     leading: const Icon(Icons.group_add),
                     title: const Text('Parrainez un ami'),
                     onTap: () {},
-                  ),
+                  ),*/
                   ListTile(
                     leading: const Icon(Icons.history),
                     title: const Text('Historique de mes activités'),
                     onTap: () {
-                      context.go("/activities");
+                      context.push("/activities");
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.notifications),
                     title: const Text('Notifications / Alertes'),
                     onTap: () {
-                      context.go("/notifications");
+                      context.push("/notifications");
                     },
                   ),
-                  ListTile(
+                  /*ListTile(
                     leading: const Icon(Icons.lock),
                     title: const Text('Modifier mot de passe'),
                     onTap: () {
@@ -234,19 +228,63 @@ class _ProfilePageState extends State<ProfilePage> {
                           })
                       );*/
                     },
-                  ),
+                  ),*/
                   ListTile(
                     leading: const Icon(Icons.delete),
                     title: const Text('Supprimer le compte'),
                     onTap: () async {
-                      await deleteUser();
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Suppression du compte"),
+                              content: const Text("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible."),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      context.pop("Non");
+                                    },
+                                    child: const Text("Non")
+                                ),
+                                TextButton(
+                                    onPressed: () async {
+                                      await deleteUser();
+                                    },
+                                    child: const Text("Oui", style: TextStyle(color: Colors.red),)
+                                ),
+                              ],
+                            );
+                          }
+                      );
                     },
                   ),
                   ListTile(
                     leading: const Icon(Icons.logout),
                     title: const Text('Déconnexion'),
                     onTap: () async {
-                      await logoutUser();
+                      showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return AlertDialog(
+                              title: const Text("Déconnexion"),
+                              content: const Text("Êtes-vous sûr de vouloir vous déconnecter ?"),
+                              actions: [
+                                TextButton(
+                                    onPressed: () {
+                                      context.pop("Non");
+                                    },
+                                    child: const Text("Non")
+                                ),
+                                TextButton(
+                                    onPressed: () async {
+                                      await logoutUser();
+                                    },
+                                    child: const Text("Oui", style: TextStyle(color: Colors.red),)
+                                ),
+                              ],
+                            );
+                          }
+                      );
                     },
                   ),
                 ],

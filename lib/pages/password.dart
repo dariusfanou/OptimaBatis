@@ -3,8 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
-import 'package:optimabatis/main.dart';
-import 'package:optimabatis/pages/home.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -101,7 +99,7 @@ class _PasswordPageState extends State<PasswordPage> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
-            Navigator.pop(context);
+            GoRouter.of(context).pop();
           },
           child: Row(
             children: [
@@ -171,7 +169,7 @@ class _PasswordPageState extends State<PasswordPage> {
                           },
                         )
                     ),
-                    TextButton(
+                    /*TextButton(
                         onPressed: () {
 
                         },
@@ -181,7 +179,7 @@ class _PasswordPageState extends State<PasswordPage> {
                               fontSize: 13
                           ),
                         )
-                    )
+                    )*/
                   ],
                 ),
                 SizedBox(

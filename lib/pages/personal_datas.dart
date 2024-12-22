@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
-import 'package:optimabatis/pages/email.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 
@@ -69,7 +68,7 @@ class _PersonalDatasState extends State<PersonalDatas> {
         appBar: AppBar(
           leading: GestureDetector(
             onTap: () {
-              Navigator.pop(context);
+              GoRouter.of(context).pop();
             },
             child: Row(
               children: [
@@ -348,7 +347,7 @@ class _PersonalDatasState extends State<PersonalDatas> {
                                 lastnameController.text = "";
                                 firstnameController.text = "";
                                 dateController.text = "";
-                                context.go('/email');
+                                context.push('/email');
                               }
                               if(!termsOfUse!) {
                                 Fluttertoast.showToast(msg: "Veuillez accepter les conditions générales d'utilisation.");

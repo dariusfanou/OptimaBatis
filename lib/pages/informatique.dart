@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
-import 'package:optimabatis/pages/detail_intervention.dart';
-import 'package:optimabatis/pages/home.dart';
 
 class Informatique extends StatelessWidget {
   const Informatique({super.key});
@@ -25,11 +23,18 @@ class Informatique extends StatelessWidget {
     ];
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Image.asset("assets/images/back.png"),
-          onPressed: () {
-            context.go("/home");
+        leading: GestureDetector(
+          onTap: () {
+            GoRouter.of(context).pop();
           },
+          child: Row(
+            children: [
+              SizedBox(width: 28,),
+              Expanded(
+                  child: Image.asset("assets/images/back.png")
+              )
+            ],
+          ),
         ),
         title: Text('Informatique'),
         centerTitle: true,
@@ -51,7 +56,7 @@ class Informatique extends StatelessWidget {
                           Expanded(child:
                           GestureDetector(onTap: (){
 
-                            context.go("/typeDemande?service=${item['text']}&provenance=informatique");
+                            context.push("/typeDemande?service=${item['text']}");
                           },
                             child:Image.asset(item['image']!,
                               width: 200,
@@ -61,7 +66,6 @@ class Informatique extends StatelessWidget {
                           const SizedBox(height: 5),
                           Expanded(
                             child: Text(item['text']!,
-
                               style: const TextStyle(fontSize: 12),
                               textAlign: TextAlign.center,),)
 

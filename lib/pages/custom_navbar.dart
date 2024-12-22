@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:optimabatis/pages//help.dart';
-import 'package:optimabatis/pages//profile.dart';
-import 'package:optimabatis/pages//publicite.dart';
-import 'package:optimabatis/pages/activity_onload.dart';
-import 'package:optimabatis/pages/home.dart';
 
 class CustomNavBar extends StatelessWidget {
   final int currentIndex;

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:optimabatis/pages/description_date.dart';
+import 'package:image_picker/image_picker.dart';
 import 'dart:io';
-import 'package:optimabatis/pages/preference.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
@@ -16,25 +14,30 @@ class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
   List<Map<String, dynamic>> images = [];
   int i = 0;
 
-  Future<void> selectPhoto() async {
+  Future<void> takePhoto() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      allowMultiple: true,
-    );
+    final picker = ImagePicker();
 
-    if (result != null) {
+    // Prendre une photo avec la caméra
+    final XFile? photo = await picker.pickImage(source: ImageSource.camera);
+
+    if (photo != null) {
       setState(() async {
-        for (var file in result.files) {
-          if (images.length < 3) {
-            images.add({'name': file.name, 'path': file.path});
-            await prefs.setString("${"image" + i.toString()}", file.path!);
-            i++;
-          }
+        // Vérifiez si vous n'avez pas déjà 3 images
+        if (images.length < 3) {
+          // Ajoutez l'image à la liste
+          images.add({'name': photo.name, 'path': photo.path});
+
+          // Enregistrez le chemin de l'image dans les SharedPreferences
+          await prefs.setString("image$i", photo.path);
+
+          // Incrémentez l'indice pour l'image suivante
+          i++;
         }
       });
     }
   }
+
 
   void showPreview(String path) {
     showDialog(
@@ -119,7 +122,7 @@ class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
             Text("Ajoutez une ou plusieurs photos pour illustrer le problème (formats acceptés : JPG, PNG)."),
             SizedBox(height: 20),
             GestureDetector(
-              onTap: selectPhoto,
+              onTap: takePhoto,
               child: Container(
                 padding: EdgeInsets.symmetric(vertical: 20),
                 decoration: BoxDecoration(

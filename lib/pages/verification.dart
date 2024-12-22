@@ -5,8 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/flutter_helpers/services/fastermessage.dart';
-import 'package:optimabatis/pages/password.dart';
-import 'package:optimabatis/pages/password_creation.dart';
 import 'dart:math';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -144,7 +142,7 @@ class _VerificationPageState extends State<VerificationPage> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
-            Navigator.pop(context);
+            context.pop();
           },
           child: Row(
             children: [

@@ -26,6 +26,7 @@ import 'package:provider/provider.dart';
 
 // GoRouter configuration
 final _router = GoRouter(
+  initialLocation: '/',
   redirect: (context, state) {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final isAuthenticated = authProvider.isAuthenticated;
@@ -52,7 +53,17 @@ final _router = GoRouter(
           future: Future.delayed(const Duration(seconds: 3)),  // Attente de 3 secondes
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.done) {
-              return authProvider.isAuthenticated ? const HomePage() : const WelcomePage();
+              // Utilisez WidgetsBinding pour effectuer la navigation après la construction
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (authProvider.isAuthenticated) {
+                  // Si authentifié, redirige vers la page d'accueil
+                  context.go('/home');
+                } else {
+                  // Si non authentifié, redirige vers la page de bienvenue
+                  context.go('/welcome');
+                }
+              });
+              return const SplashScreen();
             }
             return const SplashScreen();  // Afficher l'écran de splash pendant le délai
           },
@@ -115,8 +126,7 @@ final _router = GoRouter(
       path: '/typeDemande',
       builder: (context, state) {
         final service = state.uri.queryParameters['service'];
-        final provenance = state.uri.queryParameters['provenance'];
-        return DetailsInterventionPage(service: service, provenance: provenance,);
+        return DetailsInterventionPage(service: service);
       },
     ),
     GoRoute(
@@ -157,24 +167,36 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      routerConfig: _router,
-      title: 'OptimaBâtis',
-      theme: ThemeData(
-        scaffoldBackgroundColor: Colors.white,
-        colorScheme: ColorScheme.fromSeed(seedColor: Color(0xFF3172B8)),
-        useMaterial3: true,
-        fontFamily: "Poppins",
-      ),
-      localizationsDelegates: [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: [
-        Locale('fr'), // French
-      ],
-      locale: const Locale('fr'),
+    return WillPopScope(
+        onWillPop: () async {
+          final currentLocation = GoRouter.of(context).routeInformationProvider.value.uri.toString();
+          if (currentLocation == '/home' || currentLocation == '/welcome') {
+            // Si l'utilisateur est sur la page d'accueil ou la page de bienvenue
+            return true; // Quitte l'application
+          } else {
+            GoRouter.of(context).pop(); // Revient à la page précédente
+            return false; // Intercepte le retour
+          }
+        },
+        child: MaterialApp.router(
+          routerConfig: _router,
+          title: 'OptimaBâtis',
+          theme: ThemeData(
+            scaffoldBackgroundColor: Colors.white,
+            colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF3172B8)),
+            useMaterial3: true,
+            fontFamily: "Poppins",
+          ),
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('fr'), // Français
+          ],
+          locale: const Locale('fr'),
+        )
     );
   }
 }

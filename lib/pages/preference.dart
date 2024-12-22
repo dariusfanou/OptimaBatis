@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,8 +5,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
-import 'package:optimabatis/pages/document_photos.dart';
-import 'package:optimabatis/pages/felicitation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preference extends StatefulWidget {
@@ -104,11 +100,18 @@ class _PreferenceState extends State<Preference> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            context.go('/takePictures');
+        leading: GestureDetector(
+          onTap: () {
+            GoRouter.of(context).pop();
           },
+          child: Row(
+            children: [
+              SizedBox(width: 28,),
+              Expanded(
+                  child: Image.asset("assets/images/back.png")
+              )
+            ],
+          ),
         ),
         title: Text("Préférences de contact"),
         centerTitle: true,

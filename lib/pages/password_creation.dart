@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:optimabatis/pages/personal_datas.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class CreatePassword extends StatefulWidget {
@@ -92,7 +91,7 @@ class _CreatePasswordState extends State<CreatePassword> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
-            Navigator.pop(context);
+            GoRouter.of(context).pop();
           },
           child: Row(
             children: [
@@ -275,7 +274,7 @@ class _CreatePasswordState extends State<CreatePassword> {
                         await prefs.setString('password', passwordController.text);
                         passwordController.text = "";
                         confirmPasswordController.text = "";
-                        context.go("/personalDatas");
+                        context.push("/personalDatas");
                       }
                     },
                     child: Text("Confirmer",

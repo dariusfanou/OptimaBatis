@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
-import 'package:optimabatis/pages/notification.dart';
-import 'package:optimabatis/pages/detail_intervention.dart';
-import 'package:optimabatis/pages/informatique.dart';
 import '../flutter_helpers/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -136,9 +133,9 @@ class _HomePageState extends State<HomePage> {
                     GestureDetector(
                       onTap: () {
                         if (item['text'] != 'Informatique') {
-                          context.go("/typeDemande?service=${item['text']}&provenance=accueil");
+                          context.push("/typeDemande?service=${item['text']}&provenance=accueil");
                         } else {
-                          context.go("/informatique");
+                          context.push("/informatique");
                         }
                       },
                       child: Image.asset(

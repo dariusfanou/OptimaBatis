@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
-import 'package:optimabatis/pages/detail_intervention.dart';
-import 'package:optimabatis/pages/document_photos.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Description extends StatefulWidget {
@@ -38,13 +36,20 @@ class _DescriptionState extends State<Description> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            context.go("/typeDemande");
+        leading: GestureDetector(
+          onTap: () {
+            GoRouter.of(context).pop();
           },
+          child: Row(
+            children: [
+              SizedBox(width: 28,),
+              Expanded(
+                  child: Image.asset("assets/images/back.png")
+              )
+            ],
+          ),
         ),
-        title: Text("Description et Date de l'intervention",style: TextStyle(fontSize: 14),),
+        title: Text("Description et date de l'intervention",style: TextStyle(fontSize: 14),),
         centerTitle: true,
         elevation: 0,
       ),
@@ -111,7 +116,7 @@ class _DescriptionState extends State<Description> {
                         maxLines: 12,
                         decoration: InputDecoration(
                             hintText:
-                            "Décrivez en quelques mots le probleme ou le service souhaité",
+                            "Décrivez en quelques mots le problème ou le service souhaité",
                             border: OutlineInputBorder()),
                         validator: (String? value) {
                           return (value == null || value == "") ? "Ce champ est obligatoire" : null;
@@ -272,7 +277,7 @@ class _DescriptionState extends State<Description> {
 
                       ),
                       SizedBox(height: 25,),
-                      Text("Choisissez une plage horaire préféreée si vous avez une préférence."),
+                      Text("Choisissez une plage horaire préférée si vous avez une préférence."),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -403,7 +408,7 @@ class _DescriptionState extends State<Description> {
                       await prefs.setString("date", yearController.text + "-" + monthController.text + "-" + dayController.text);
                       await prefs.setString("hour", hourController.text + ":" + minuteController.text);
                       if(checkDateTime()) {
-                        context.go("/takePictures");
+                        context.push("/takePictures");
                       }
                       else {
                         Fluttertoast.showToast(msg: "La date est invalide");

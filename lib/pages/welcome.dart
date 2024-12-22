@@ -1,9 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:optimabatis/pages/password.dart';
-import 'package:optimabatis/pages/password_creation.dart';
-import 'package:optimabatis/pages/verification.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -270,7 +267,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             onPressed: () async {
                               if(formKey.currentState!.validate()) {
                                 await saveNumber();
-                                context.go("/numberVerification");
+                                context.push("/numberVerification");
                               }
                             },
                             child: Text("Je suis nouveau sur OptimaBâtis",
@@ -296,7 +293,7 @@ class _WelcomePageState extends State<WelcomePage> {
                           onPressed: () async {
                             if(formKey.currentState!.validate()) {
                               await saveNumber();
-                              context.go('/authentication');
+                              context.push('/authentication');
                             }
                           },
                           child: Text("Suivant",

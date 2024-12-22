@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
-import 'package:optimabatis/pages/home.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -212,7 +211,7 @@ class _EmailPageState extends State<EmailPage> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
-            Navigator.pop(context);
+            GoRouter.of(context).pop();
           },
           child: Row(
             children: [

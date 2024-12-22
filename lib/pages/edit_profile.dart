@@ -5,12 +5,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
-import 'package:optimabatis/pages/email.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:optimabatis/pages/profile.dart';
 import 'dart:io';
-
-import 'package:shared_preferences/shared_preferences.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -178,7 +174,7 @@ class _EditProfileState extends State<EditProfile> {
       appBar: AppBar(
         leading: GestureDetector(
           onTap: () {
-            Navigator.pop(context);
+            GoRouter.of(context).pop();
           },
           child: Row(
             children: [

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
-import 'notification.dart';
 
 class Publicite extends StatefulWidget {
   const Publicite({super.key});

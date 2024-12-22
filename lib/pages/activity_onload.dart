@@ -5,9 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
-import 'package:optimabatis/main.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
-import 'package:optimabatis/pages/notification.dart';
 
 class Activity_onload extends StatefulWidget {
   const Activity_onload({super.key});

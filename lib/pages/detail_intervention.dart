@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:optimabatis/pages/description_date.dart';
-import 'package:optimabatis/pages/home.dart';
-import 'package:optimabatis/pages/informatique.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailsInterventionPage extends StatefulWidget {
 
-  const DetailsInterventionPage({super.key, this.service, this.provenance});
+  const DetailsInterventionPage({super.key, this.service});
 
   final String? service;
-  final String? provenance;
 
   @override
   _DetailsInterventionPageState createState() =>
@@ -24,16 +20,18 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            if(widget.provenance == "informatique") {
-              context.go("/informatique");
-            }
-            else {
-              context.go("/home");
-            }
+        leading: GestureDetector(
+          onTap: () {
+            GoRouter.of(context).pop();
           },
+          child: Row(
+            children: [
+              SizedBox(width: 28,),
+              Expanded(
+                  child: Image.asset("assets/images/back.png")
+              )
+            ],
+          ),
         ),
         title: Text("Détails de l'intervention"),
         centerTitle: true,
@@ -84,9 +82,9 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
               width: double.infinity,
               child: ElevatedButton(
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(Color(0xFF3172B8)),
-                  elevation: MaterialStateProperty.all(0),
-                  shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                  backgroundColor: WidgetStateProperty.all(Color(0xFF3172B8)),
+                  elevation: WidgetStateProperty.all(0),
+                  shape: WidgetStateProperty.all(RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(32),
                     side: BorderSide(color: Color(0xFF707070), width: 1),
                   )),
@@ -115,7 +113,7 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
                       await prefs.setString("demande", "informatique");
                       break;
                   }
-                  context.go("/describeIntervention");
+                  context.push("/describeIntervention");
                 },
                 child: Text(
                   "Suivant",
