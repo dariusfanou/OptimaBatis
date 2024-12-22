@@ -1,6 +1,7 @@
 import 'package:dotted_border/dotted_border.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:optimabatis/pages/email.dart';
 import 'package:file_picker/file_picker.dart';
@@ -241,6 +242,8 @@ class _PersonalDatasState extends State<PersonalDatas> {
                                   child: Row(
                                     crossAxisAlignment: CrossAxisAlignment.center,
                                     children: [
+                                      (_filePath != null) ?
+                                      Image.file(File(_filePath!)) :
                                       Icon(Icons.person_outline, color: Color(0xFF4B5563), size: 28,),
                                       SizedBox(width: 10,),
                                       Align(
@@ -270,11 +273,6 @@ class _PersonalDatasState extends State<PersonalDatas> {
                               ),
                             )
                         ),
-                        SizedBox(height: 20),
-                        if (_fileName != null)
-                          Text("Image sélectionnée : $_fileName"),
-                        if (_filePath != null)
-                          Image.file(File(_filePath!)), // Afficher l'image
                         SizedBox(height: 32,),
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,12 +348,7 @@ class _PersonalDatasState extends State<PersonalDatas> {
                                 lastnameController.text = "";
                                 firstnameController.text = "";
                                 dateController.text = "";
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) {
-                                      return EmailPage();
-                                    })
-                                );
+                                context.go('/email');
                               }
                               if(!termsOfUse!) {
                                 Fluttertoast.showToast(msg: "Veuillez accepter les conditions générales d'utilisation.");

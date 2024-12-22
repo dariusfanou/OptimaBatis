@@ -37,4 +37,26 @@ class UserService {
     return response.data;
   }
 
+  Future<void> updateUser(Map<String, dynamic> data) async {
+    final pref = await SharedPreferences.getInstance();
+    String token = pref.getString("token") ?? "";
+
+    if (token != "") {
+      api.options.headers['AUTHORIZATION'] = 'Bearer $token';
+    }
+
+    await api.put('immobilierpannehelper/usermodif/1/', data: data);
+  }
+
+  Future deleteUser() async {
+    final pref = await SharedPreferences.getInstance();
+    String token = pref.getString("token") ?? "";
+
+    if (token != "") {
+      api.options.headers['AUTHORIZATION'] = 'Bearer $token';
+    }
+
+    await api.delete('immobilierpannehelper/usermodif/1/');
+  }
+
 }

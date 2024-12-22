@@ -1,9 +1,16 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
+import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
+import 'package:optimabatis/main.dart';
+import 'package:optimabatis/pages/activity_onload.dart';
 import 'package:optimabatis/pages/authentification.dart';
+import 'package:optimabatis/pages/edit_profile.dart';
+import 'package:optimabatis/pages/notification.dart';
 import 'package:optimabatis/pages/welcome.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'custom_navbar.dart';
 
@@ -18,6 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
   final userService = UserService();
   Map<String, dynamic>? authUser;
   bool isLoading = true;
+  late AuthProvider authProvider;
 
   Future<void> getAuthUser() async {
     try {
@@ -39,22 +47,58 @@ class _ProfilePageState extends State<ProfilePage> {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.remove("token");
 
+    authProvider.logout();
+
     // Rediriger vers la page de connexion
-    Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) {
-          return WelcomePage();
-        })
-    );
+    context.go("/welcome");
 
     // Afficher un message de succès
     Fluttertoast.showToast(msg: "Déconnexion réussie");
 
   }
 
+  deleteUser() async {
+
+    try {
+
+      await userService.deleteUser();
+
+      Fluttertoast.showToast(msg: "Compte supprimé avec succès");
+
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.remove("token");
+
+      authProvider.logout();
+
+      // Rediriger vers la page de connexion
+      context.go("/welcome");
+
+    } on DioException catch (e) {
+      // Gérer les erreurs de la requête
+      print(e.response?.statusCode);
+      if (e.response != null) {
+        Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
+      } else {
+        // Gérer les erreurs réseau
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+          Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
+        } else if (e.type == DioExceptionType.unknown) {
+          Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
+        } else {
+          Fluttertoast.showToast(msg: "Une erreur est survenue.");
+        }
+      }
+    } catch (e) {
+      // Gérer d'autres types d'erreurs
+      Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
+    }
+
+  }
+
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
   }
 
@@ -151,7 +195,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     leading: const Icon(Icons.edit),
                     title: const Text('Modifier le profil'),
-                    onTap: () {},
+                    onTap: () {
+                      context.go("/editProfile");
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.translate),
@@ -166,12 +212,16 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     leading: const Icon(Icons.history),
                     title: const Text('Historique de mes activités'),
-                    onTap: () {},
+                    onTap: () {
+                      context.go("/activities");
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.notifications),
                     title: const Text('Notifications / Alertes'),
-                    onTap: () {},
+                    onTap: () {
+                      context.go("/notifications");
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.lock),
@@ -188,7 +238,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ListTile(
                     leading: const Icon(Icons.delete),
                     title: const Text('Supprimer le compte'),
-                    onTap: () {},
+                    onTap: () async {
+                      await deleteUser();
+                    },
                   ),
                   ListTile(
                     leading: const Icon(Icons.logout),

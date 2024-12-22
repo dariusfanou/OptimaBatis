@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/flutter_helpers/services/fastermessage.dart';
 import 'package:optimabatis/pages/password.dart';
 import 'package:optimabatis/pages/password_creation.dart';
@@ -11,9 +12,7 @@ import 'dart:math';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class VerificationPage extends StatefulWidget {
-  const VerificationPage({super.key, required this.goal});
-
-  final String goal;
+  const VerificationPage({super.key});
 
   @override
   State<VerificationPage> createState() => _VerificationPageState();
@@ -132,22 +131,7 @@ class _VerificationPageState extends State<VerificationPage> {
   void checkCode() {
     String code = _controller1.text + _controller2.text + _controller3.text + _controller4.text;
     if(code == _code) {
-      if(widget.goal == "connexion") {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => PasswordPage()
-            )
-        );
-      }
-      else if (widget.goal == "inscription"){
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => CreatePassword()
-            )
-        );
-      }
+      context.go("/createPassword");
     }
     else {
       Fluttertoast.showToast(msg: "Code invalide");

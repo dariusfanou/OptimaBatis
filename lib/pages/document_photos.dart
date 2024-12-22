@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/description_date.dart';
 import 'dart:io';
 import 'package:optimabatis/pages/preference.dart';
@@ -60,12 +61,7 @@ class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return Description();
-                })
-            );
+            context.go("/describeIntervention");
           },
         ),
         title: Text("Documents et Photos"),
@@ -184,10 +180,7 @@ class _DocumentPhotoPageState extends State<DocumentPhotoPage> {
                   foregroundColor: MaterialStateProperty.all(Colors.white),
                 ),
                 onPressed: () async {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => Preference()),
-                  );
+                  context.go("/preference");
                 },
                 child: Text(
                   "Suivant",

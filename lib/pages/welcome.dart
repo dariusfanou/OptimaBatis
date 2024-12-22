@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/password.dart';
 import 'package:optimabatis/pages/password_creation.dart';
 import 'package:optimabatis/pages/verification.dart';
@@ -104,6 +105,10 @@ class _WelcomePageState extends State<WelcomePage> {
                         options: CarouselOptions(
                           height: screenHeight * 0.7,
                           viewportFraction: 1.0,
+                          autoPlay: true, // Active le défilement automatique
+                          autoPlayInterval: Duration(seconds: 3), // Intervalle entre les diapositives
+                          autoPlayAnimationDuration: Duration(seconds: 1), // Durée de l'animation
+                          autoPlayCurve: Curves.easeInOut, // Courbe pour l'animation
                           enlargeCenterPage: false,
                           onPageChanged: (index, reason) {
                             setState(() {
@@ -265,10 +270,7 @@ class _WelcomePageState extends State<WelcomePage> {
                             onPressed: () async {
                               if(formKey.currentState!.validate()) {
                                 await saveNumber();
-                                Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (context) => VerificationPage(goal: "inscription"))
-                                );
+                                context.go("/numberVerification");
                               }
                             },
                             child: Text("Je suis nouveau sur OptimaBâtis",
@@ -294,12 +296,7 @@ class _WelcomePageState extends State<WelcomePage> {
                           onPressed: () async {
                             if(formKey.currentState!.validate()) {
                               await saveNumber();
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) {
-                                    return PasswordPage();
-                                  })
-                              );
+                              context.go('/authentication');
                             }
                           },
                           child: Text("Suivant",

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/home.dart';
 
 class Felicitation extends StatelessWidget {
@@ -52,10 +53,7 @@ class Felicitation extends StatelessWidget {
                       ),
                     ),
                     onPressed: () {
-                       Navigator.pushReplacement(
-                                           context,
-                                           MaterialPageRoute(builder: (context) => HomePage()),
-                                         );
+                      context.go("/home");
                     },
                     child: Text('Retour à l\'accueil',style: TextStyle(fontSize: 16, color: Colors.white),),
                   ),

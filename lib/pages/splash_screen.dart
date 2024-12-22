@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
-import 'package:optimabatis/pages/welcome.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
@@ -13,17 +12,6 @@ class SplashScreen extends StatelessWidget {
         child: Lottie.asset(
           'assets/animations/logo.json',
           repeat: false,
-          onLoaded: (composition) {
-            // Après la fin de l'animation, passez à la page suivante
-            Future.delayed(Duration(seconds: 3), () {
-              Navigator.push(
-                context,
-                  MaterialPageRoute(builder: (context) {
-                    return WelcomePage();
-                  })
-              );
-            });
-          },
         ),
       ),
     );

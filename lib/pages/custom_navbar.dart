@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages//help.dart';
 import 'package:optimabatis/pages//profile.dart';
 import 'package:optimabatis/pages//publicite.dart';
@@ -19,22 +20,22 @@ class CustomNavBar extends StatelessWidget {
         onTap: (onTap)
     {
       if(onTap ==0){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomePage()),);
+        context.go("/home");
       }
       else if (onTap == 1)
       {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Activity_onload()),);
+        context.go("/activities");
       }
       else if(onTap == 2)
       {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Publicite()),);
+        context.go("/pub");
       }
       else if(onTap == 3)
       {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> Help()),);
+        context.go("/help");
       }
       else if(onTap == 4){
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> ProfilePage()),);
+        context.go("/profile");
       }
     },
       selectedItemColor: isNotifPage?Colors.grey:Colors.blue,

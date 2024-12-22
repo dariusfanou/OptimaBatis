@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'notification.dart';
@@ -49,7 +50,6 @@ class _PubliciteState extends State<Publicite> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        toolbarHeight: 120,
         automaticallyImplyLeading: false,
         title: Row(
           children: [
@@ -76,7 +76,7 @@ class _PubliciteState extends State<Publicite> {
           IconButton(
             icon: const Icon(Icons.notifications_active_outlined, color: Colors.black),
             onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> NotificationPage()),);
+              context.go("/notifications");
             },
           ),
         ],

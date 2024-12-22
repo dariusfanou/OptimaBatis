@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:optimabatis/pages/notification.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
@@ -61,7 +62,6 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: Colors.white,
         elevation: 0,
         automaticallyImplyLeading: false,
-        toolbarHeight: 120,
         title: Row(
           children: [
             CircleAvatar(
@@ -89,10 +89,7 @@ class _HomePageState extends State<HomePage> {
               color: Colors.black,
             ),
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationPage()),
-              );
+              context.go("/notifications");
             },
           ),
         ],
@@ -139,20 +136,9 @@ class _HomePageState extends State<HomePage> {
                     GestureDetector(
                       onTap: () {
                         if (item['text'] != 'Informatique') {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DetailsInterventionPage(
-                                service: item['text'],
-                                provenance: "accueil",
-                              ),
-                            ),
-                          );
+                          context.go("/typeDemande?service=${item['text']}&provenance=accueil");
                         } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const Informatique()),
-                          );
+                          context.go("/informatique");
                         }
                       },
                       child: Image.asset(

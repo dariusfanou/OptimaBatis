@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
 import 'package:optimabatis/pages/home.dart';
@@ -27,7 +28,7 @@ class Informatique extends StatelessWidget {
         leading: IconButton(
           icon: Image.asset("assets/images/back.png"),
           onPressed: () {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> HomePage()),);
+            context.go("/home");
           },
         ),
         title: Text('Informatique'),
@@ -50,7 +51,7 @@ class Informatique extends StatelessWidget {
                           Expanded(child:
                           GestureDetector(onTap: (){
 
-                            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> DetailsInterventionPage(service: item['text'], provenance: "informatique",)),);
+                            context.go("/typeDemande?service=${item['text']}&provenance=informatique");
                           },
                             child:Image.asset(item['image']!,
                               width: 200,

@@ -1,7 +1,11 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
+import 'package:optimabatis/auth_provider.dart';
+import 'package:optimabatis/main.dart';
 import 'package:optimabatis/pages/home.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../flutter_helpers/services/user_service.dart';
@@ -20,6 +24,7 @@ class _PasswordPageState extends State<PasswordPage> {
   bool hidePassword = true;
   final userService = UserService();
   bool isLoading = false;
+  late AuthProvider authProvider;
 
   loginUser() async {
 
@@ -48,13 +53,10 @@ class _PasswordPageState extends State<PasswordPage> {
 
       await prefs.remove("number");
 
+      authProvider.login();
+
       // Rediriger vers la page d'accueil
-      Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) {
-            return HomePage();
-          })
-      );
+      context.go("/home");
 
     } on DioException catch (e) {
       // Gérer les erreurs de la requête
@@ -84,6 +86,13 @@ class _PasswordPageState extends State<PasswordPage> {
       });
     }
 
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
   }
 
   @override

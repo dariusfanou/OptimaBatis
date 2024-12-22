@@ -13,16 +13,10 @@ class NotificationPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: Color(0xFFF5F5F5),
       appBar: AppBar(
-        leading: IconButton(
-          icon:Icon(Icons.arrow_back),
-          onPressed: (){
-            Navigator.pop(context);
-          },
-        ),
         backgroundColor: Colors.white,
         elevation: 1,
         title: Text(
-          'Notification',
+          'Notifications',
           style: TextStyle(color: Colors.black),
         ),
         centerTitle: true,

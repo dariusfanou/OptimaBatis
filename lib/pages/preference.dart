@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/document_photos.dart';
@@ -53,10 +54,7 @@ class _PreferenceState extends State<Preference> {
 
       await interventionService.create(data);
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => Felicitation()),
-      );
+      context.go('/congratulations');
 
     } on DioException catch (e) {
 
@@ -78,6 +76,7 @@ class _PreferenceState extends State<Preference> {
     }
 
   }
+
   final userService = UserService();
   Map<String, dynamic>? authUser;
   bool isLoading = true;
@@ -108,15 +107,10 @@ class _PreferenceState extends State<Preference> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return DocumentPhotoPage();
-                })
-            );
+            context.go('/takePictures');
           },
         ),
-        title: Text("Preferences de Contact"),
+        title: Text("Préférences de contact"),
         centerTitle: true,
         elevation: 0,
       ),
@@ -171,7 +165,7 @@ class _PreferenceState extends State<Preference> {
             ),
             SizedBox(height: 20),
             Text(
-              "Type de demande :",
+              "Préférence de contact :",
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),

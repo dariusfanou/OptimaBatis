@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/description_date.dart';
 import 'package:optimabatis/pages/home.dart';
 import 'package:optimabatis/pages/informatique.dart';
@@ -27,20 +28,10 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
           icon: Icon(Icons.arrow_back),
           onPressed: () {
             if(widget.provenance == "informatique") {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) {
-                    return Informatique();
-                  })
-              );
+              context.go("/informatique");
             }
             else {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) {
-                    return HomePage();
-                  })
-              );
+              context.go("/home");
             }
           },
         ),
@@ -81,11 +72,10 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
             SizedBox(height: 10),
             Column(
               children: [
-                _buildRadioOption(1, "Signalement de panne et de devis"),
+                _buildRadioOption(1, "Signalement de panne"),
                 _buildRadioOption(2, "Demande de rénovation totale de bâtiment"),
-                _buildRadioOption(3, "Demande de rénovation partielle de bâtiment"),
-                _buildRadioOption(4, "Construction"),
-                _buildRadioOption(5, "Informatique et réseaux"),
+                _buildRadioOption(3, "Construction"),
+                _buildRadioOption(4, "Informatique et réseaux"),
               ],
             ),
             Spacer(),
@@ -119,19 +109,13 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
                       await prefs.setString("demande", "rennovationTotale");
                       break;
                     case 3:
-                      await prefs.setString("demande", "rennovationPartielle");
-                      break;
-                    case 4:
                       await prefs.setString("demande", "construction");
                       break;
-                    case 5:
+                    case 4:
                       await prefs.setString("demande", "informatique");
                       break;
                   }
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => Description()),
-                  );
+                  context.go("/describeIntervention");
                 },
                 child: Text(
                   "Suivant",

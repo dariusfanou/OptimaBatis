@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
 import 'package:optimabatis/pages/document_photos.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -40,12 +41,7 @@ class _DescriptionState extends State<Description> {
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) {
-                  return DetailsInterventionPage();
-                })
-            );
+            context.go("/typeDemande");
           },
         ),
         title: Text("Description et Date de l'intervention",style: TextStyle(fontSize: 14),),
@@ -407,10 +403,7 @@ class _DescriptionState extends State<Description> {
                       await prefs.setString("date", yearController.text + "-" + monthController.text + "-" + dayController.text);
                       await prefs.setString("hour", hourController.text + ":" + minuteController.text);
                       if(checkDateTime()) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => DocumentPhotoPage()),
-                        );
+                        context.go("/takePictures");
                       }
                       else {
                         Fluttertoast.showToast(msg: "La date est invalide");

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'notification.dart';
@@ -53,7 +54,6 @@ class _HelpState extends State<Help> {
       appBar: AppBar(
         backgroundColor: Colors.white,
         elevation: 0,
-        toolbarHeight: 120,
         automaticallyImplyLeading: false,
         title: Row(
           children: [
@@ -80,7 +80,7 @@ class _HelpState extends State<Help> {
           IconButton(
             icon: const Icon(Icons.notifications_active_outlined, color: Colors.black),
             onPressed: () {
-              Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=> NotificationPage()),);
+              context.go("/notifications");
             },
           ),
         ],
@@ -109,19 +109,7 @@ class _HelpState extends State<Help> {
               },
             ),
           ),
-          Expanded(child: ListView.builder(
-            itemCount: _filterClients(_searchController.text).length,
-            itemBuilder: (context, index){
-              return ListTile(
-                title: Text(_filterClients(_searchController.text)[index]),
-              );
-            },
-          ))
         ]
-        
-       
-
-
       ),
       bottomNavigationBar: CustomNavBar(currentIndex: 3),
 

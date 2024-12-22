@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:dio/dio.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
+import 'package:optimabatis/main.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:optimabatis/pages/notification.dart';
 
@@ -67,6 +69,7 @@ class _Activity_onloadState extends State<Activity_onload>
     });
     try {
       interventions = await interventionService.getAll();
+      interventions = interventions.reversed.toList();
       for(Map<String, dynamic> intervention in interventions) {
         if(intervention["actif"] == "en cour") {
           interventionsEncours.add(intervention);
@@ -91,7 +94,7 @@ class _Activity_onloadState extends State<Activity_onload>
   }
 
   Map<String, String> Demandes = {
-    "panneDevis": "Signalement de panne et de devis",
+    "panneDevis": "Signalement de panne",
     "rennovationTotale": "Demande de rénovation totale de bâtiment",
     "rennovationPartielle": "Demande de rénovation partielle de bâtiment",
     "construction": "Construction",
@@ -113,7 +116,6 @@ class _Activity_onloadState extends State<Activity_onload>
         appBar: AppBar(
           elevation: 0,
           backgroundColor: Colors.white,
-          toolbarHeight: 120,
           automaticallyImplyLeading: false,
           title: Row(
             children: [
@@ -141,10 +143,7 @@ class _Activity_onloadState extends State<Activity_onload>
               icon: const Icon(Icons.notifications_active_outlined,
                   color: Colors.black),
               onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => NotificationPage()),
-                );
+                context.go("/notifications");
               },
             ),
           ],

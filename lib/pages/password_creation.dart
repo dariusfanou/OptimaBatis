@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:optimabatis/pages/personal_datas.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -274,12 +275,7 @@ class _CreatePasswordState extends State<CreatePassword> {
                         await prefs.setString('password', passwordController.text);
                         passwordController.text = "";
                         confirmPasswordController.text = "";
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) {
-                              return PersonalDatas();
-                            })
-                        );
+                        context.go("/personalDatas");
                       }
                     },
                     child: Text("Confirmer",
