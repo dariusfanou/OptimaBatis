@@ -71,6 +71,11 @@ class _ProfilePageState extends State<ProfilePage> {
       // Gérer les erreurs de la requête
       print(e.response?.statusCode);
       if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
         Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
       } else {
         // Gérer les erreurs réseau

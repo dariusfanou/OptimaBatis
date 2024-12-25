@@ -1,6 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../flutter_helpers/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,6 +18,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final userService = UserService();
   Map<String, dynamic>? authUser;
+  late AuthProvider authProvider;
 
   final images = [
     {'image': 'assets/images/Macon.png', 'text': "Maçon"},
@@ -40,7 +46,12 @@ class _HomePageState extends State<HomePage> {
       } else {
         print("Aucun utilisateur authentifié trouvé.");
       }
-    } catch (error) {
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 401) {
+        Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+        authProvider.logout();
+        context.go("/welcome");
+      }
       print("Erreur lors de la récupération de l'utilisateur : $error");
     }
   }
@@ -48,6 +59,7 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
   }
 
@@ -86,7 +98,7 @@ class _HomePageState extends State<HomePage> {
               color: Colors.black,
             ),
             onPressed: () {
-              context.go("/notifications");
+              context.push("/congratulations");
             },
           ),
         ],
@@ -95,7 +107,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children: [
             Container(
-              margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               height: 150,
               decoration: BoxDecoration(
                 color: Colors.limeAccent,
@@ -116,55 +128,75 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 10),
-            GridView.builder(
-              shrinkWrap: true, // Pour limiter la hauteur à son contenu
-              physics: const NeverScrollableScrollPhysics(), // Désactiver le défilement interne
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4,
-                mainAxisSpacing: 10,
-                crossAxisSpacing: 10,
-                childAspectRatio: 3 / 4,
-              ),
-              itemCount: images.length,
-              itemBuilder: (context, index) {
-                final item = images[index];
-                return Column(
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if (item['text'] != 'Informatique') {
-                          context.push("/typeDemande?service=${item['text']}&provenance=accueil");
-                        } else {
-                          context.push("/informatique");
-                        }
-                      },
-                      child: Image.asset(
-                        item['image']!,
-                        width: 60,
-                        height: 60,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Icon(
-                            Icons.error,
-                            size: 60,
-                            color: Colors.red,
-                          );
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: GridView.builder(
+                shrinkWrap: true, // Pour limiter la hauteur à son contenu
+                physics: const NeverScrollableScrollPhysics(), // Désactiver le défilement interne
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 4,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 3 / 4,
+                ),
+                itemCount: images.length,
+                itemBuilder: (context, index) {
+                  final item = images[index];
+                  return Column(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if (item['text'] != 'Informatique') {
+                            context.push("/typeDemande?service=${item['text']}&provenance=accueil");
+                          } else {
+                            context.push("/informatique");
+                          }
                         },
+                        child: Image.asset(
+                          item['image']!,
+                          width: 60,
+                          height: 60,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Icon(
+                              Icons.error,
+                              size: 60,
+                              color: Colors.red,
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      item['text']!,
-                      style: const TextStyle(fontSize: 12),
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                );
-              },
-            ),
+                      const SizedBox(height: 8),
+                      Text(
+                        item['text']!,
+                        style: const TextStyle(fontSize: 12),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  );
+                },
+              ),
+            )
           ],
         ),
       ),
       bottomNavigationBar: CustomNavBar(currentIndex: 0),
+      floatingActionButton: IconButton(
+          style: ButtonStyle(
+            backgroundColor: WidgetStateProperty.all(Color(0xFF3172B8)),
+            foregroundColor: WidgetStatePropertyAll(Colors.white),
+            padding: WidgetStatePropertyAll(EdgeInsets.all(16))
+          ),
+          onPressed: () async {
+            SharedPreferences prefs = await SharedPreferences.getInstance();
+            if(prefs.containsKey("chatHelper")) {
+              context.push("/chat");
+            }
+            else {
+              context.push("/chatHelper");
+            }
+          }, 
+          icon: Icon(Icons.chat)
+      ),
     );
   }
 }

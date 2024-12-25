@@ -1,8 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
+import 'package:provider/provider.dart';
 
 class Help extends StatefulWidget {
   const Help({super.key});
@@ -26,7 +30,7 @@ class _HelpState extends State<Help> {
 
   '3-	OptimaBâtis est-elle disponible dans mon pays ?',
 
-  'OptimaBâtis est actuellement disponible dans [liste des pays, par exemple : les pays d’Afrique de l’Ouest]. Vérifiez dans l’application pour connaître les zones supportées.',
+  'OptimaBâtis est actuellement disponible uniquement au Bénin. Vérifiez dans l’application pour connaître les zones supportées.',
 
   'Compte et Inscription',
 
@@ -144,6 +148,7 @@ class _HelpState extends State<Help> {
 
   final userService = UserService();
   Map<String, dynamic>? authUser;
+  late AuthProvider authProvider;
 
   Future<void> getAuthUser() async {
     try {
@@ -155,7 +160,12 @@ class _HelpState extends State<Help> {
       } else {
         print("Aucun utilisateur authentifié trouvé.");
       }
-    } catch (error) {
+    } on DioException catch (error) {
+      if (error.response?.statusCode == 401) {
+        Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+        authProvider.logout();
+        context.go("/welcome");
+      }
       print("Erreur lors de la récupération de l'utilisateur : $error");
     }
   }
@@ -163,6 +173,7 @@ class _HelpState extends State<Help> {
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
   }
 

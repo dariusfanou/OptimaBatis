@@ -15,22 +15,22 @@ class CustomNavBar extends StatelessWidget {
         onTap: (onTap)
     {
       if(onTap ==0){
-        context.go("/home");
+        context.push("/home");
       }
       else if (onTap == 1)
       {
-        context.go("/activities");
+        context.push("/activities");
       }
       else if(onTap == 2)
       {
-        context.go("/pub");
+        context.push("/pub");
       }
       else if(onTap == 3)
       {
-        context.go("/help");
+        context.push("/help");
       }
       else if(onTap == 4){
-        context.go("/profile");
+        context.push("/profile");
       }
     },
       selectedItemColor: isNotifPage?Colors.grey:Colors.blue,

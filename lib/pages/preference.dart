@@ -3,8 +3,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class Preference extends StatefulWidget {
@@ -16,6 +18,7 @@ class _PreferenceState extends State<Preference> {
   int? _value = 1;
   String? preference;
   bool loading = false;
+  late AuthProvider authProvider;
 
   final interventionService = InterventionService();
 
@@ -55,12 +58,22 @@ class _PreferenceState extends State<Preference> {
     } on DioException catch (e) {
 
       if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
         print(e.response?.data);
         print(e.response?.statusCode);
       } else {
-        // Something happened in setting up or sending the request that triggered an Error
-        print(e.requestOptions);
-        print(e.message);
+        // Gérer les erreurs réseau
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+          Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
+        } else if (e.type == DioExceptionType.unknown) {
+          Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
+        } else {
+          Fluttertoast.showToast(msg: "Une erreur est survenue.");
+        }
       }
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
@@ -85,7 +98,12 @@ class _PreferenceState extends State<Preference> {
         isLoading = false;
         print(authUser);
       });
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+        authProvider.logout();
+        context.go("/welcome");
+      }
       print('Erreur lors de la récupération des données utilisateur : $e');
     }
   }
@@ -93,6 +111,7 @@ class _PreferenceState extends State<Preference> {
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
   }
 

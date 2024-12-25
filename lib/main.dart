@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/pages/activity_onload.dart';
+import 'package:optimabatis/pages/chat.dart';
+import 'package:optimabatis/pages/chat_helper.dart';
 import 'package:optimabatis/pages/description_date.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
 import 'package:optimabatis/pages/document_photos.dart';
@@ -148,6 +150,14 @@ final _router = GoRouter(
     GoRoute(
       path: '/preference',
       builder: (context, state) => Preference(),
+    ),
+    GoRoute(
+      path: '/chatHelper',
+      builder: (context, state) => ChatHelper(),
+    ),
+    GoRoute(
+      path: '/chat',
+      builder: (context, state) => ChatPage(),
     ),
   ],
 );

@@ -1,6 +1,8 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl_phone_field/countries.dart';
+import 'package:intl_phone_field/intl_phone_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class WelcomePage extends StatefulWidget {
@@ -48,7 +50,6 @@ class _WelcomePageState extends State<WelcomePage> {
 
   Future saveNumber() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-    phoneNumber = "+229" + phoneController.text;
     await prefs.setString('number', phoneNumber!);
   }
 
@@ -210,7 +211,133 @@ class _WelcomePageState extends State<WelcomePage> {
                       SizedBox(height: screenHeight * 0.02),
                       Form(
                           key: formKey,
-                          child: Column(
+                          child: IntlPhoneField(
+                            controller: phoneController,
+                            decoration: InputDecoration(
+                              hintText: "Numéro de téléphone",
+                              hintStyle: TextStyle(
+                                color: Color(0xFF4F4F4F),
+                                fontSize: screenWidth * 0.035,
+                              ),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(32),
+                                  borderSide: BorderSide(color: Color(0xFF707070))
+                              ),
+                            ),
+                            keyboardType: TextInputType.phone,
+                            showDropdownIcon: false,
+                            initialCountryCode: 'BJ',
+                            flagsButtonMargin: EdgeInsets.only(left: 32),
+                            countries: [
+                              Country(
+                                name: "Bénin",
+                                code: "BJ",
+                                flag: "bj",
+                                dialCode: "229",
+                                nameTranslations: {
+                                  "en": "Benin",
+                                  "fr": "Bénin",
+                                },
+                                minLength: 10,
+                                maxLength: 10,
+                              ),
+                              Country(
+                                name: "Burkina Faso",
+                                code: "BF",
+                                flag: "bf",
+                                dialCode: "226",
+                                nameTranslations: {
+                                  "en": "Burkina Faso",
+                                  "fr": "Burkina Faso",
+                                },
+                                minLength: 8,
+                                maxLength: 8,
+                              ),
+                              Country(
+                                name: "Côte d'Ivoire",
+                                code: "CI",
+                                flag: "ci",
+                                dialCode: "225",
+                                nameTranslations: {
+                                  "en": "Ivory Coast",
+                                  "fr": "Côte d'Ivoire",
+                                },
+                                minLength: 8,
+                                maxLength: 8,
+                              ),
+                              Country(
+                                name: "Sénégal",
+                                code: "SN",
+                                flag: "sn",
+                                dialCode: "221",
+                                nameTranslations: {
+                                  "en": "Senegal",
+                                  "fr": "Sénégal",
+                                },
+                                minLength: 9,
+                                maxLength: 9,
+                              ),
+                              Country(
+                                name: "Togo",
+                                code: "TG",
+                                flag: "tg",
+                                dialCode: "228",
+                                nameTranslations: {
+                                  "en": "Togo",
+                                  "fr": "Togo",
+                                },
+                                minLength: 8,
+                                maxLength: 8,
+                              ),
+                              Country(
+                                name: "Niger",
+                                code: "NE",
+                                flag: "ne",
+                                dialCode: "227",
+                                nameTranslations: {
+                                  "en": "Niger",
+                                  "fr": "Niger",
+                                },
+                                minLength: 8,
+                                maxLength: 8,
+                              ),
+                              Country(
+                                name: "Mali",
+                                code: "ML",
+                                flag: "ml",
+                                dialCode: "223",
+                                nameTranslations: {
+                                  "en": "Mali",
+                                  "fr": "Mali",
+                                },
+                                minLength: 8,
+                                maxLength: 8,
+                              ),
+                              Country(
+                                name: "Guinée",
+                                code: "GN",
+                                flag: "gn",
+                                dialCode: "224",
+                                nameTranslations: {
+                                  "en": "Guinea",
+                                  "fr": "Guinée",
+                                },
+                                minLength: 8,
+                                maxLength: 8,
+                              ),
+                            ],
+                            invalidNumberMessage: "Numéro de téléphone invalide",
+                            onChanged: (phone) {
+                              phoneNumber = phone.completeNumber;
+                            },
+                            validator: (value) {
+                              if(phoneController.text == null || phoneController.text.isEmpty) {
+                                return "Veuillez entrer un numéro de téléphone";
+                              }
+                              return null;
+                            },
+                          )
+                        /*Column(
                             children: [
                               TextFormField(
                                 controller: phoneController,
@@ -253,14 +380,14 @@ class _WelcomePageState extends State<WelcomePage> {
                                   if (value == null || value.isEmpty) {
                                     return "Ce champ est obligatoire";
                                   }
-                                  else if (value.length != 10) {
+                                  /*else if (value.length != 10) {
                                     return "Le numéro doit comporter 10 chiffres";
-                                  }
+                                  }*/
                                   return null;
                                 },
                               )
                             ],
-                          )
+                          )*/
                       ),
                       Center(
                         child: TextButton(

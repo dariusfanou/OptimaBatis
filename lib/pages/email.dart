@@ -143,6 +143,9 @@ class _EmailPageState extends State<EmailPage> {
             if (extension == 'png') {
               mimeType = 'image/png';
             }
+            if (extension == 'jpg') {
+              mimeType = 'image/jpg';
+            }
 
             // Ajouter la photo dans les données
             data['photo'] = await MultipartFile.fromFile(profile, contentType: DioMediaType.parse(mimeType));

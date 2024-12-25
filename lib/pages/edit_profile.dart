@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+
+import 'package:provider/provider.dart';
 
 class EditProfile extends StatefulWidget {
   const EditProfile({super.key});
@@ -27,6 +30,7 @@ class _EditProfileState extends State<EditProfile> {
   final DateFormat _dateFormatStocked = DateFormat('yyyy-MM-dd');
   String? dateStocked;
   bool loading = false;
+  late AuthProvider authProvider;
 
   String? _fileName;
   String? _filePath;
@@ -87,7 +91,12 @@ class _EditProfileState extends State<EditProfile> {
         isLoading = false;
         print(authUser);
       });
-    } catch (e) {
+    } on DioException catch (e) {
+      if(e.response?.statusCode == 401) {
+        Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+        authProvider.logout();
+        context.go("/welcome");
+      }
       print('Erreur lors de la récupération des données utilisateur : $e');
     }
   }
@@ -95,7 +104,7 @@ class _EditProfileState extends State<EditProfile> {
   updateUser() async {
 
     setState(() {
-      loading = false;
+      loading = true;
     });
 
     try {
@@ -119,6 +128,9 @@ class _EditProfileState extends State<EditProfile> {
           if (extension == 'png') {
             mimeType = 'image/png';
           }
+          if (extension == 'jpg') {
+            mimeType = 'image/jpg';
+          }
 
           // Ajouter la photo dans les données
           data['photo'] = await MultipartFile.fromFile(_filePath!, contentType: DioMediaType.parse(mimeType));
@@ -138,13 +150,18 @@ class _EditProfileState extends State<EditProfile> {
 
       Fluttertoast.showToast(msg: "Profil modifié avec succès");
 
-      context.go("/profile");
+      context.push("/profile");
 
     } on DioException catch (e) {
       // Gérer les erreurs de la requête
       print(e.response?.statusCode);
       if (e.response != null) {
-          Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
       } else {
         // Gérer les erreurs réseau
         if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
@@ -158,6 +175,10 @@ class _EditProfileState extends State<EditProfile> {
     } catch (e) {
       // Gérer d'autres types d'erreurs
       Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
+    } finally {
+      setState(() {
+        loading = false;
+      });
     }
 
   }
@@ -165,6 +186,7 @@ class _EditProfileState extends State<EditProfile> {
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
   }
 

@@ -1,7 +1,11 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
+import 'package:provider/provider.dart';
 
 class NotificationPage extends StatefulWidget {
   const NotificationPage({super.key});
@@ -15,6 +19,7 @@ class _NotificationPageState extends State<NotificationPage> {
   final userService = UserService();
   Map<String, dynamic>? authUser;
   bool isLoading = true;
+  late AuthProvider authProvider;
 
   Future<void> getAuthUser() async {
     try {
@@ -24,7 +29,12 @@ class _NotificationPageState extends State<NotificationPage> {
         isLoading = false;
         print(authUser);
       });
-    } catch (e) {
+    } on DioException catch (e) {
+      if (e.response?.statusCode == 401) {
+        Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+        authProvider.logout();
+        context.go("/welcome");
+      }
       print('Erreur lors de la récupération des données utilisateur : $e');
     }
   }
@@ -32,6 +42,7 @@ class _NotificationPageState extends State<NotificationPage> {
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
   }
 

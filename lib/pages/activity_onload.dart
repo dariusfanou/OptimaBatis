@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
+import 'package:optimabatis/auth_provider.dart';
 
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
+import 'package:provider/provider.dart';
 
 class Activity_onload extends StatefulWidget {
   const Activity_onload({super.key});
@@ -19,6 +21,7 @@ class _Activity_onloadState extends State<Activity_onload>
   final userService = UserService();
   final interventionService = InterventionService();
   Map<String, dynamic>? authUser;
+  late AuthProvider authProvider;
 
   bool loading = true;
   List<Map<String, dynamic>> interventions = [];
@@ -55,7 +58,12 @@ class _Activity_onloadState extends State<Activity_onload>
       } else {
         print("Aucun utilisateur authentifié trouvé.");
       }
-    } catch (error) {
+    } on DioException catch (error) {
+      if(error.response != null && error.response?.statusCode == 401) {
+        Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+        authProvider.logout();
+        context.go("/welcome");
+      }
       print("Erreur lors de la récupération de l'utilisateur : $error");
     }
   }
@@ -76,6 +84,11 @@ class _Activity_onloadState extends State<Activity_onload>
       setState(() {});
     } on DioException catch (e) {
       if (e.response != null) {
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
         print(e.response?.data);
         print(e.response?.statusCode);
       } else {
@@ -102,6 +115,7 @@ class _Activity_onloadState extends State<Activity_onload>
   @override
   void initState() {
     super.initState();
+    authProvider = Provider.of<AuthProvider>(context, listen: false);
     loadInterventions();
     getAuthUser(); // Chargez les informations utilisateur
   }
@@ -141,7 +155,7 @@ class _Activity_onloadState extends State<Activity_onload>
               icon: const Icon(Icons.notifications_active_outlined,
                   color: Colors.black),
               onPressed: () {
-                context.go("/notifications");
+                context.push("/notifications");
               },
             ),
           ],
