@@ -46,9 +46,6 @@ class _ProfilePageState extends State<ProfilePage> {
     // Rediriger vers la page de connexion
     context.go("/welcome");
 
-    // Afficher un message de succès
-    Fluttertoast.showToast(msg: "Déconnexion réussie");
-
   }
 
   deleteUser() async {

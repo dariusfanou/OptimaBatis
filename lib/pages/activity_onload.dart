@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:dio/dio.dart';
@@ -5,9 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
 
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
+import 'package:optimabatis/flutter_helpers/services/notification_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Activity_onload extends StatefulWidget {
   const Activity_onload({super.key});
@@ -47,6 +51,8 @@ class _Activity_onloadState extends State<Activity_onload>
         return ["Inconnu", Colors.grey];
     }
   }
+
+  final Uri url = Uri.parse('https://me.fedapay.com/paiement-pour-optimabatis'); // Lien à ouvrir
 
   Future<void> getAuthUser() async {
     try {
@@ -112,12 +118,44 @@ class _Activity_onloadState extends State<Activity_onload>
     "informatique": "Informatique et réseaux"
   };
 
+  final notificationService = NotificationService();
+  List<Map<String, dynamic>> notifications = [];
+  List<Map<String, dynamic>> notificationsNotRead = [];
+
+  Future<void> loadNotifications() async {
+    try {
+      notifications = await notificationService.getAll();
+      for (Map<String, dynamic> notification in notifications) {
+        if(!notification["is_read"]) {
+          notificationsNotRead.add(notification);
+        }
+      }
+      setState(() {});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
+      }
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     loadInterventions();
     getAuthUser(); // Chargez les informations utilisateur
+    loadNotifications();
   }
 
   @override
@@ -152,8 +190,17 @@ class _Activity_onloadState extends State<Activity_onload>
           ),
           actions: [
             IconButton(
-              icon: const Icon(Icons.notifications_active_outlined,
-                  color: Colors.black),
+              icon: (notificationsNotRead.length > 0) ? Badge(
+                child: const Icon(
+                  Icons.notifications_active_outlined,
+                  color: Colors.black,
+                ),
+                label: Text("${notificationsNotRead.length}"),
+              ) :
+              const Icon(
+                Icons.notifications_active_outlined,
+                color: Colors.black,
+              ),
               onPressed: () {
                 context.push("/notifications");
               },
@@ -194,17 +241,6 @@ class _Activity_onloadState extends State<Activity_onload>
                               children: [
                                 Text(interventionsEncours[index]["description"] ?? "Contenu non disponible",),
                                 Text("Date: ${interventionsEncours[index]["date"]}, ${interventionsEncours[index]["heure"]}"),
-                                Container(
-                                  padding: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-                                  decoration: BoxDecoration(
-                                      color: interventionTag(interventionsEncours[index]["actif"])[1],
-                                      borderRadius: BorderRadius.circular(20)
-                                  ),
-                                  child: Text(
-                                    interventionTag(interventionsEncours[index]["actif"])[0],
-                                    style: TextStyle(color: Colors.white), // Couleur du texte
-                                  ),
-                                ),
                               ],
                             ),
                             tileColor: Colors.white,
@@ -270,17 +306,31 @@ class _Activity_onloadState extends State<Activity_onload>
                               children: [
                                 Text(interventions[index]["description"] ?? "Contenu non disponible",),
                                 Text("Date: ${interventions[index]["date"]}, ${interventions[index]["heure"]}"),
-                                Container(
-                                  padding: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
-                                  decoration: BoxDecoration(
-                                    color: interventionTag(interventions[index]["actif"])[1],
-                                    borderRadius: BorderRadius.circular(20)
-                                  ),
-                                  child: Text(
-                                    interventionTag(interventions[index]["actif"])[0],
-                                    style: TextStyle(color: Colors.white), // Couleur du texte
-                                  ),
-                                ),
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: EdgeInsets.only(top: 5, bottom: 5, left: 10, right: 10),
+                                      decoration: BoxDecoration(
+                                          color: interventionTag(interventions[index]["actif"])[1],
+                                          borderRadius: BorderRadius.circular(20)
+                                      ),
+                                      child: Text(
+                                        interventionTag(interventions[index]["actif"])[0],
+                                        style: TextStyle(color: Colors.white), // Couleur du texte
+                                      ),
+                                    ),
+                                    SizedBox(width: 8,),
+                                    (interventions[index]["actif"] == "en attente") ?
+                                    TextButton(
+                                        onPressed: () async {
+                                          if (await canLaunchUrl(url)) {
+                                            await launchUrl(url);
+                                          }
+                                        },
+                                        child: Text("Procéder au paiement"),
+                                    ) : SizedBox(),
+                                  ],
+                                )
                               ],
                             ),
                             tileColor: Colors.white,

@@ -4,6 +4,7 @@ import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/pages/activity_onload.dart';
 import 'package:optimabatis/pages/chat.dart';
 import 'package:optimabatis/pages/chat_helper.dart';
+import 'package:optimabatis/pages/congratulations.dart';
 import 'package:optimabatis/pages/description_date.dart';
 import 'package:optimabatis/pages/detail_intervention.dart';
 import 'package:optimabatis/pages/document_photos.dart';
@@ -14,6 +15,7 @@ import 'package:optimabatis/pages/help.dart';
 import 'package:optimabatis/pages/home.dart';
 import 'package:optimabatis/pages/informatique.dart';
 import 'package:optimabatis/pages/notification.dart';
+import 'package:optimabatis/pages/notification_details.dart';
 import 'package:optimabatis/pages/password.dart';
 import 'package:optimabatis/pages/password_creation.dart';
 import 'package:optimabatis/pages/personal_datas.dart';
@@ -105,6 +107,10 @@ final _router = GoRouter(
       builder: (context, state) => NotificationPage(),
     ),
     GoRoute(
+      path: '/notifications/:id',
+      builder: (context, state) => NotificationDetails(id: state.pathParameters['id']),
+    ),
+    GoRoute(
       path: '/activities',
       builder: (context, state) => Activity_onload(),
     ),
@@ -158,6 +164,10 @@ final _router = GoRouter(
     GoRoute(
       path: '/chat',
       builder: (context, state) => ChatPage(),
+    ),
+    GoRoute(
+      path: '/congratulationsPayment',
+      builder: (context, state) => CongratulationsPage(),
     ),
   ],
 );

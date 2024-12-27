@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../dio_instance.dart';
 
-class InterventionService {
+class NotificationService {
 
   Dio api = configureDio();
 
@@ -16,7 +16,7 @@ class InterventionService {
       api.options.headers['AUTHORIZATION'] = 'Bearer $token';
     }
 
-    final response = await api.post('immobilierpannehelper/intervention/', data: data);
+    final response = await api.post('immobilierpannehelper/notification/', data: data);
 
     return response.data;
   }
@@ -30,12 +30,12 @@ class InterventionService {
     }
 
     try {
-      final response = await api.get('immobilierpannehelper/intervention/');
+      final response = await api.get('immobilierpannehelper/notification/');
 
       // Vérifier si response.data est bien une liste
-      if (response.data["results"] is List) {
+      if (response.data is List) {
         // Si c'est une liste, la convertir en List<Map<String, dynamic>>
-        return (response.data["results"] as List)
+        return (response.data as List)
             .map((item) => item as Map<String, dynamic>) // On s'assure que chaque élément est un Map
             .toList();
       } else {
@@ -43,12 +43,12 @@ class InterventionService {
         throw Exception("Données non conformes reçues de l'API : ${response.data}");
       }
     } catch (error) {
-      print("Erreur lors de la récupération des interventions : $error");
+      print("Erreur lors de la récupération des notifications : $error");
       throw error; // Vous pouvez propager l'erreur ou gérer selon vos besoins
     }
   }
 
-  Future<Map<String, dynamic>> get (int id) async{
+  Future<Map<String, dynamic>> get (String id) async{
 
     final pref = await SharedPreferences.getInstance();
     String token = pref.getString("token") ?? "";
@@ -57,12 +57,12 @@ class InterventionService {
       api.options.headers['AUTHORIZATION'] = 'Bearer $token';
     }
 
-    final response = await api.get('immobilierpannehelper/intervention/$id');
+    final response = await api.get('immobilierpannehelper/notification/$id/');
 
     return response.data;
   }
 
-  Future<Map<String, dynamic>> update (Map<String, dynamic> data, int id) async{
+  Future<Map<String, dynamic>> update (Map<String, dynamic> data, String id) async{
 
     final pref = await SharedPreferences.getInstance();
     String token = pref.getString("token") ?? "";
@@ -71,7 +71,7 @@ class InterventionService {
       api.options.headers['AUTHORIZATION'] = 'Bearer $token';
     }
 
-    final response = await api.patch('immobilierpannehelper/intervention/$id/', data: data);
+    final response = await api.patch('immobilierpannehelper/notification/$id/', data: data);
 
     return response.data;
   }

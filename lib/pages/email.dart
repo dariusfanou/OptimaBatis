@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
+import 'package:optimabatis/flutter_helpers/services/notification_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -25,6 +26,11 @@ class _EmailPageState extends State<EmailPage> {
   bool isLoading = false;
   bool loading = false;
   late AuthProvider authProvider;
+  late String? firstname;
+  late String? lastname;
+  late String? number;
+  late String? password;
+  late SharedPreferences? prefs;
 
   @override
   void initState() {
@@ -36,9 +42,7 @@ class _EmailPageState extends State<EmailPage> {
   loginUser(String goal) async {
 
     try {
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String? number = await prefs.getString('number');
-      final String? password = await prefs.getString('password');
+      prefs = await SharedPreferences.getInstance();
 
       // Prépare les données à envoyer
       Map<String, dynamic> data = {
@@ -50,12 +54,11 @@ class _EmailPageState extends State<EmailPage> {
       Map<String, dynamic> authUser = await userService.login(data);
 
       // Sauvegerder le token en mémoire
-      prefs.setString("token", authUser['access']!);
-
-      // Afficher un message de succès
-      Fluttertoast.showToast(msg: "Vous êtes connecté(e)");
+      prefs?.setString("token", authUser['access']!);
 
       authProvider.login();
+
+      await createNotification(goal);
 
       // Rediriger vers la page d'accueil
       context.go("/home");
@@ -76,22 +79,14 @@ class _EmailPageState extends State<EmailPage> {
         } else if (e.type == DioExceptionType.unknown) {
           Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
         } else {
-          Fluttertoast.showToast(msg: "Une erreur est survenue.");
+          Fluttertoast.showToast(msg: "Une erreur est survenue $e");
+          print(e);
         }
       }
     } catch (e) {
       // Gérer d'autres types d'erreurs
-      Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
-    } finally {
-      if(goal == "email") {
-        setState(() {
-          isLoading = false;
-        });
-      } else {
-        setState(() {
-          loading = false;
-        });
-      }
+      Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite $e");
+      print(e);
     }
 
   }
@@ -110,27 +105,27 @@ class _EmailPageState extends State<EmailPage> {
 
     try {
 
-      final SharedPreferences prefs = await SharedPreferences.getInstance();
-      final String? last_name = await prefs.getString('name');
-      final String? first_name = await prefs.getString('firstname');
-      final String? gender = await prefs.getString('gender');
-      final String? date = await prefs.getString('date');
-      final String? number = await prefs.getString('number');
-      final String? password = await prefs.getString('password');
+      prefs = await SharedPreferences.getInstance();
+      lastname = await prefs?.getString('name');
+      firstname = await prefs?.getString('firstname');
+      final String? gender = await prefs?.getString('gender');
+      final String? date = await prefs?.getString('date');
+      number = await prefs?.getString('number');
+      password = await prefs?.getString('password');
 
       Map<String, dynamic> data = {
         'email': emailController.text,
         "numtelephone": number,
-        "first_name": first_name,
-        'last_name': last_name,
+        "first_name": firstname,
+        'last_name': lastname,
         "genre": gender,
         "datenaissance": date,
         "password": password,
       };
 
       // Vérification si la photo est présente et valide
-      if (prefs.containsKey('profile')) {
-        final String? profile = await prefs.getString('profile');
+      if (prefs!.containsKey('profile')) {
+        final String? profile = await prefs?.getString('profile');
 
         // Si le chemin est non null et le fichier existe
         if (profile != null && profile.isNotEmpty) {
@@ -161,17 +156,15 @@ class _EmailPageState extends State<EmailPage> {
 
       emailController.text = "";
 
-      Fluttertoast.showToast(msg: "Compte créé avec succès");
-
       await loginUser(goal);
 
-      await prefs.remove("name");
-      await prefs.remove("firstname");
-      await prefs.remove("gender");
-      await prefs.remove("number");
-      await prefs.remove("password");
-      await prefs.remove("profile");
-      await prefs.remove("date");
+      await prefs?.remove("name");
+      await prefs?.remove("firstname");
+      await prefs?.remove("gender");
+      await prefs?.remove("number");
+      await prefs?.remove("password");
+      await prefs?.remove("profile");
+      await prefs?.remove("date");
 
     } on DioException catch (e) {
       // Gérer les erreurs de la requête
@@ -204,6 +197,69 @@ class _EmailPageState extends State<EmailPage> {
     } catch (e) {
       // Gérer d'autres types d'erreurs
       Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
+    }
+
+  }
+
+  final notificationService = NotificationService();
+
+  createNotification(String goal) async {
+
+    try {
+
+      Map<String, dynamic> data = {
+        "title": "Bienvenue sur OptimaBâtis",
+        "content": "Bonjour $lastname $firstname 👋, bienvenue sur OptimaBâtis ! " +
+
+      "Nous sommes ravis de vous compter parmi nos utilisateurs. "+
+
+      "OptimaBâtis vous offre désormais une solution rapide et fiable pour gérer vos problèmes de dépannage immobilier en maçonnerie, plomberie, menuiserie, électricité, etc, de rénovation partielle ou totale, et de construction des bâtiments, et bien plus encore ! "+
+
+      "🚀 Voici comment démarrer :\n"+
+
+      "Explorez nos catégories de services. "+
+      "Soumettez votre première demande en quelques clics. "+
+
+      "Consultez vos notifications pour rester informé en temps réel. "+
+
+      "Si vous avez des questions, notre support est là pour vous accompagner. "+
+
+      "Ensemble, transformons notre quotidien en matière de réparation immobilière et bâtissons autrement l'avenir de rénovation et de construction. "+
+
+      "Encore une fois, bienvenue dans la communauté OptimaBâtis !",
+        "receiver": 1
+      };
+
+      await notificationService.create(data);
+
+    } on DioException catch (e) {
+      // Gérer les erreurs de la requête
+      print(e.response?.statusCode);
+      if (e.response != null) {
+          Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
+      } else {
+        // Gérer les erreurs réseau
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+          Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
+        } else if (e.type == DioExceptionType.unknown) {
+          Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
+        } else {
+          Fluttertoast.showToast(msg: "Une erreur est survenue.");
+        }
+      }
+    } catch (e) {
+      // Gérer d'autres types d'erreurs
+      Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
+    } finally {
+      if(goal == "email") {
+        setState(() {
+          isLoading = false;
+        });
+      } else {
+        setState(() {
+          loading = false;
+        });
+      }
     }
 
   }

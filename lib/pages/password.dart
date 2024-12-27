@@ -46,9 +46,6 @@ class _PasswordPageState extends State<PasswordPage> {
       // Sauvegerder le token en mémoire
       prefs.setString("token", authUser['access']!);
 
-      // Afficher un message de succès
-      Fluttertoast.showToast(msg: "Vous êtes connecté(e)");
-
       await prefs.remove("number");
 
       authProvider.login();

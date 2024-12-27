@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
+import 'package:optimabatis/flutter_helpers/services/notification_service.dart';
+import 'package:optimabatis/flutter_helpers/services/pub_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:provider/provider.dart';
@@ -16,18 +18,17 @@ class Publicite extends StatefulWidget {
 
 class _PubliciteState extends State<Publicite> {
 
-  // Liste des chemins ou URLs des images
-  final List<String> images = [
-    'assets/images/ing-co.png',
-    'assets/images/sat-bat.png',
-    'assets/images/sicat-btp.jpg',
-  ];
-
   final userService = UserService();
   Map<String, dynamic>? authUser;
   late AuthProvider authProvider;
+  final pubService = PubService();
+  bool loading = false;
+  List<Map<String, dynamic>> pubs = [];
 
   Future<void> getAuthUser() async {
+    setState(() {
+      loading = true;
+    });
     try {
       final user = await userService.getUser();
       if (user != null) {
@@ -47,11 +48,71 @@ class _PubliciteState extends State<Publicite> {
     }
   }
 
+  Future<void> loadPubs() async {
+    try {
+      pubs = await pubService.getAll();
+      pubs = pubs.reversed.toList();
+      setState(() {});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
+      }
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
+  final notificationService = NotificationService();
+  List<Map<String, dynamic>> notifications = [];
+  List<Map<String, dynamic>> notificationsNotRead = [];
+
+  Future<void> loadNotifications() async {
+    try {
+      notifications = await notificationService.getAll();
+      for (Map<String, dynamic> notification in notifications) {
+        if(!notification["is_read"]) {
+          notificationsNotRead.add(notification);
+        }
+      }
+      setState(() {});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
+      }
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
+    loadPubs();
+    loadNotifications();
   }
 
   @override
@@ -84,7 +145,17 @@ class _PubliciteState extends State<Publicite> {
 
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_active_outlined, color: Colors.black),
+            icon: (notificationsNotRead.length > 0) ? Badge(
+              child: const Icon(
+                Icons.notifications_active_outlined,
+                color: Colors.black,
+              ),
+              label: Text("${notificationsNotRead.length}"),
+            ) :
+            const Icon(
+              Icons.notifications_active_outlined,
+              color: Colors.black,
+            ),
             onPressed: () {
               context.push("/notifications");
             },
@@ -92,15 +163,21 @@ class _PubliciteState extends State<Publicite> {
         ],
 
       ),
-      body: ListView.builder(
-        itemCount: images.length, // Nombre d'images dans la liste
+      body:
+      loading
+          ? const Center(
+        child: CircularProgressIndicator(), // Indicateur de chargement
+      )
+          : (pubs.length > 0) ?
+      ListView.builder(
+        itemCount: pubs.length, // Nombre de pubs dans la liste
         itemBuilder: (context, index) {
           return Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: const EdgeInsets.all(16.0),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(10), // Coins arrondis pour les photos
-              child: Image.asset(
-                images[index], // Chemin de l'image
+              child: Image.network(
+                pubs[index]["image"], // Chemin de l'image
                 fit: BoxFit.cover, // Ajuste l'image pour remplir l'espace
                 height: 200, // Hauteur de l'image
                 width: double.infinity, // Largeur qui prend tout l'espace
@@ -108,6 +185,9 @@ class _PubliciteState extends State<Publicite> {
             ),
           );
         },
+      )
+      : const Center(
+        child: Text("Aucune publicité en cours"),
       ),
       bottomNavigationBar: CustomNavBar(currentIndex: 2),
 

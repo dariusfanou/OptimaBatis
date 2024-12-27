@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
-import 'package:optimabatis/flutter_helpers/services/user_service.dart';
+import 'package:optimabatis/flutter_helpers/services/notification_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:provider/provider.dart';
 
@@ -16,26 +16,37 @@ class NotificationPage extends StatefulWidget {
 
 class _NotificationPageState extends State<NotificationPage> {
 
-  final userService = UserService();
-  Map<String, dynamic>? authUser;
-  bool isLoading = true;
+  bool isLoading = false;
   late AuthProvider authProvider;
+  final notificationService = NotificationService();
+  List<Map<String, dynamic>> notifications = [];
 
-  Future<void> getAuthUser() async {
+  Future<void> loadNotifications() async {
+    setState(() {
+      isLoading = true;
+    });
     try {
-      final user = await userService.getUser();
-      setState(() {
-        authUser = user;
-        isLoading = false;
-        print(authUser);
-      });
+      notifications = await notificationService.getAll();
+      setState(() {});
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401) {
-        Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
-        authProvider.logout();
-        context.go("/welcome");
+      if (e.response != null) {
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
       }
-      print('Erreur lors de la récupération des données utilisateur : $e');
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
     }
   }
 
@@ -43,7 +54,7 @@ class _NotificationPageState extends State<NotificationPage> {
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
-    getAuthUser();
+    loadNotifications();
   }
 
   @override
@@ -72,30 +83,44 @@ class _NotificationPageState extends State<NotificationPage> {
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.black),
       ),
-      body: isLoading
-          ? const Center(
-        child: CircularProgressIndicator(),
-      ) : Card(
-        margin: EdgeInsets.only(bottom: 16.0),
-        child: ListTile(
-          subtitle: Text("Bonjour ${authUser!["first_name"]} 👋, bienvenue sur OptimaBâtis ! " +
-
-              "Nous sommes ravis de vous compter parmi nos utilisateurs. "+
-
-              "OptimaBâtis vous offre désormais une solution rapide et fiable pour gérer vos problèmes de dépannage immobilier en maçonnerie, plomberie, menuiserie, électricité, etc, de rénovation partielle ou totale, et de construction des bâtiments, et bien plus encore ! "+
-
-              "🚀 Voici comment démarrer :\n"+
-
-              "Explorez nos catégories de services. "+
-              "Soumettez votre première demande en quelques clics. "+
-
-              "Consultez vos notifications pour rester informé en temps réel. "+
-
-              "Si vous avez des questions, notre support est là pour vous accompagner. "+
-
-              "Ensemble, transformons notre quotidien en matière de réparation immobilière et bâtissons autrement l'avenir de rénovation et de construction. "+
-
-              "Encore une fois, bienvenue dans la communauté OptimaBâtis !"),
+      body: isLoading ?
+      const Center(
+        child: CircularProgressIndicator(), // Indicateur de chargement
+      ) : (notifications.length > 0) ?
+      Container(
+        margin: const EdgeInsets.all(10),
+        child: ListView.builder(
+          itemCount: notifications.length,
+          itemBuilder: (context, index) {
+            return Card(
+                color: Colors.transparent,
+                elevation: 0,
+                child: ListTile(
+                  leading: (notifications[index]["is_read"] != null && !notifications[index]["is_read"]) ?
+                  Icon(Icons.circle, color: Color(0xFF3172B8), size: 12,) :
+                  SizedBox(),
+                  title: Text(
+                    notifications[index]["title"] ?? "Titre non disponible", // Texte du titre
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16), // Style du titre
+                    maxLines: 1,
+                  ),
+                  subtitle: Text(
+                    notifications[index]["content"] ?? "Contenue indisponible", // Texte du sous-titre
+                    style: TextStyle(fontSize: 14), // Style du sous-titre
+                    maxLines: 2,
+                  ),
+                  onTap: (){
+                    context.pushReplacement("/notifications/${notifications[index]["id"]}");
+                  },
+                )
+            );
+          },
+        ),
+      ):
+      Container(
+        margin: EdgeInsets.all(10),
+        child: Center(
+          child: Text("Aucune notification disponible"),
         ),
       ),
       bottomNavigationBar: CustomNavBar( currentIndex: 0,isNotifPage: true, ),

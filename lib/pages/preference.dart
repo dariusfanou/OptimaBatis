@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/flutter_helpers/services/intervention_service.dart';
+import 'package:optimabatis/flutter_helpers/services/notification_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -51,7 +52,11 @@ class _PreferenceState extends State<Preference> {
         "service" : service
       };
 
-      await interventionService.create(data);
+      Map<String, dynamic> response = await interventionService.create(data);
+
+      prefs.setInt("interventionId", response["id"]);
+
+      await createNotification();
 
       context.go('/congratulations');
 
@@ -78,9 +83,50 @@ class _PreferenceState extends State<Preference> {
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
 
+    }
+
+  }
+
+  final notificationService = NotificationService();
+
+  createNotification() async {
+
+    try {
+
+      Map<String, dynamic> data = {
+        "title": "Demande créée avec succès",
+        "content": "Votre demande a été bien enregistrée. Elle est actuellement en attente et sera validée après le paiement. Rendez-vous dans votre historique pour accéder au lien de paiement.",
+        "receiver": 1
+      };
+
+      await notificationService.create(data);
+
+    } on DioException catch (e) {
+      // Gérer les erreurs de la requête
+      print(e.response?.statusCode);
+      if (e.response != null) {
+        if (e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
+      } else {
+        // Gérer les erreurs réseau
+        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
+          Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
+        } else if (e.type == DioExceptionType.unknown) {
+          Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
+        } else {
+          Fluttertoast.showToast(msg: "Une erreur est survenue.");
+        }
+      }
+    } catch (e) {
+      // Gérer d'autres types d'erreurs
+      Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
     } finally {
       setState(() {
-        isLoading = false;
+        loading = false;
       });
     }
 

@@ -235,8 +235,8 @@ class _WelcomePageState extends State<WelcomePage> {
                                 flag: "bj",
                                 dialCode: "229",
                                 nameTranslations: {
-                                  "en": "Benin",
                                   "fr": "Bénin",
+                                  "en": "Benin",
                                 },
                                 minLength: 10,
                                 maxLength: 10,
@@ -247,8 +247,8 @@ class _WelcomePageState extends State<WelcomePage> {
                                 flag: "bf",
                                 dialCode: "226",
                                 nameTranslations: {
-                                  "en": "Burkina Faso",
                                   "fr": "Burkina Faso",
+                                  "en": "Burkina Faso",
                                 },
                                 minLength: 8,
                                 maxLength: 8,
@@ -271,8 +271,8 @@ class _WelcomePageState extends State<WelcomePage> {
                                 flag: "sn",
                                 dialCode: "221",
                                 nameTranslations: {
-                                  "en": "Senegal",
                                   "fr": "Sénégal",
+                                  "en": "Senegal",
                                 },
                                 minLength: 9,
                                 maxLength: 9,
@@ -283,8 +283,8 @@ class _WelcomePageState extends State<WelcomePage> {
                                 flag: "tg",
                                 dialCode: "228",
                                 nameTranslations: {
-                                  "en": "Togo",
                                   "fr": "Togo",
+                                  "en": "Togo",
                                 },
                                 minLength: 8,
                                 maxLength: 8,
@@ -295,8 +295,8 @@ class _WelcomePageState extends State<WelcomePage> {
                                 flag: "ne",
                                 dialCode: "227",
                                 nameTranslations: {
-                                  "en": "Niger",
                                   "fr": "Niger",
+                                  "en": "Niger",
                                 },
                                 minLength: 8,
                                 maxLength: 8,
@@ -307,8 +307,8 @@ class _WelcomePageState extends State<WelcomePage> {
                                 flag: "ml",
                                 dialCode: "223",
                                 nameTranslations: {
-                                  "en": "Mali",
                                   "fr": "Mali",
+                                  "en": "Mali",
                                 },
                                 minLength: 8,
                                 maxLength: 8,
@@ -319,8 +319,8 @@ class _WelcomePageState extends State<WelcomePage> {
                                 flag: "gn",
                                 dialCode: "224",
                                 nameTranslations: {
-                                  "en": "Guinea",
                                   "fr": "Guinée",
+                                  "en": "Guinea",
                                 },
                                 minLength: 8,
                                 maxLength: 8,

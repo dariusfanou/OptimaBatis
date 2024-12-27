@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
+import 'package:optimabatis/flutter_helpers/services/notification_service.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:provider/provider.dart';
@@ -30,7 +31,7 @@ class _HelpState extends State<Help> {
 
   '3-	OptimaBâtis est-elle disponible dans mon pays ?',
 
-  'OptimaBâtis est actuellement disponible uniquement au Bénin. Vérifiez dans l’application pour connaître les zones supportées.',
+  'OptimaBâtis est actuellement disponible au Bénin, au Togo, au Niger, au Mali, au Burkina Faso, au Sénégal, en Côte d\'Ivoire et en Guinée. Vérifiez dans l’application pour connaître les zones supportées.',
 
   'Compte et Inscription',
 
@@ -170,11 +171,43 @@ class _HelpState extends State<Help> {
     }
   }
 
+  final notificationService = NotificationService();
+  List<Map<String, dynamic>> notifications = [];
+  List<Map<String, dynamic>> notificationsNotRead = [];
+
+  Future<void> loadNotifications() async {
+    try {
+      notifications = await notificationService.getAll();
+      for (Map<String, dynamic> notification in notifications) {
+        if(!notification["is_read"]) {
+          notificationsNotRead.add(notification);
+        }
+      }
+      setState(() {});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
+      }
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
+    loadNotifications();
   }
 
   // Fonction pour filtrer les clients en fonction de la recherche
@@ -211,7 +244,17 @@ class _HelpState extends State<Help> {
 
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications_active_outlined, color: Colors.black),
+            icon: (notificationsNotRead.length > 0) ? Badge(
+              child: const Icon(
+                Icons.notifications_active_outlined,
+                color: Colors.black,
+              ),
+              label: Text("${notificationsNotRead.length}"),
+            ) :
+            const Icon(
+              Icons.notifications_active_outlined,
+              color: Colors.black,
+            ),
             onPressed: () {
               context.push('/notifications');
             },

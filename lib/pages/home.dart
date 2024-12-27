@@ -1,11 +1,14 @@
+import 'package:carousel_slider/carousel_controller.dart';
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:optimabatis/auth_provider.dart';
+import 'package:optimabatis/flutter_helpers/services/notification_service.dart';
+import 'package:optimabatis/flutter_helpers/services/pub_service.dart';
 import 'package:optimabatis/pages/custom_navbar.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../flutter_helpers/services/user_service.dart';
 
 class HomePage extends StatefulWidget {
@@ -56,11 +59,80 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  final notificationService = NotificationService();
+  List<Map<String, dynamic>> notifications = [];
+  List<Map<String, dynamic>> notificationsNotRead = [];
+
+  Future<void> loadNotifications() async {
+    try {
+      notifications = await notificationService.getAll();
+      for (Map<String, dynamic> notification in notifications) {
+        if(!notification["is_read"]) {
+          notificationsNotRead.add(notification);
+        }
+      }
+      setState(() {});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
+      }
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    }
+  }
+
+  final pubService = PubService();
+  bool loading = false;
+  List<Map<String, dynamic>> pubs = [];
+  int currentIndex = 0;
+  final CarouselSliderController carouselController = CarouselSliderController();
+
+  Future<void> loadPubs() async {
+    setState(() {
+      loading = true;
+    });
+    try {
+      pubs = await pubService.getAll();
+      pubs = pubs.reversed.toList();
+      setState(() {});
+    } on DioException catch (e) {
+      if (e.response != null) {
+        if(e.response?.statusCode == 401) {
+          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+          authProvider.logout();
+          context.go("/welcome");
+        }
+        print(e.response?.data);
+        print(e.response?.statusCode);
+      } else {
+        print(e.requestOptions);
+        print(e.message);
+      }
+
+      Fluttertoast.showToast(msg: "Une erreur est survenue");
+    } finally {
+      setState(() {
+        loading = false;
+      });
+    }
+  }
+
   @override
   void initState() {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
+    loadPubs();
+    loadNotifications();
   }
 
   @override
@@ -93,12 +165,19 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(
+            icon: (notificationsNotRead.length > 0) ? Badge(
+              child: const Icon(
+                Icons.notifications_active_outlined,
+                color: Colors.black,
+              ),
+              label: Text("${notificationsNotRead.length}"),
+            ) :
+            const Icon(
               Icons.notifications_active_outlined,
               color: Colors.black,
             ),
             onPressed: () {
-              context.push("/congratulations");
+              context.push("/notifications");
             },
           ),
         ],
@@ -106,9 +185,57 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(
         child: Column(
           children: [
+            loading
+                ? Container(
+              padding: EdgeInsets.symmetric(vertical: 8),
+                child: const Center(
+                  child: CircularProgressIndicator(), // Indicateur de chargement
+                )
+            )
+                : (pubs.length > 0) ?
+            CarouselSlider(
+              carouselController: carouselController,
+              options: CarouselOptions(
+                height: 225,
+                viewportFraction: 1.0,
+                autoPlay: (pubs.length > 1) ? true : false, // Active le défilement automatique
+                autoPlayInterval: Duration(seconds: 5), // Intervalle entre les diapositives
+                autoPlayAnimationDuration: Duration(seconds: 1), // Durée de l'animation
+                autoPlayCurve: Curves.easeInOut, // Courbe pour l'animation
+                enlargeCenterPage: false,
+                onPageChanged: (index, reason) {
+                  setState(() {
+                    currentIndex = index;
+                  });
+                },
+              ),
+              items: pubs
+                  .map((item) =>
+                  Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      height: 150,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10), // Coins arrondis pour les photos
+                          child: Image.network(
+                            item["image"], // Chemin de l'image
+                            fit: BoxFit.cover, // Ajuste l'image pour remplir l'espace
+                            height: 200, // Hauteur de l'image
+                            width: double.infinity, // Largeur qui prend tout l'espace
+                          ),
+                        ),
+                      )
+                  )
+              ).toList(),
+            ) :
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              height: 150,
+              padding: EdgeInsets.all(16),
+              height: 225,
               decoration: BoxDecoration(
                 color: Colors.limeAccent,
                 borderRadius: BorderRadius.circular(20),
@@ -119,11 +246,12 @@ class _HomePageState extends State<HomePage> {
               ),
               child: const Center(
                 child: Text(
-                  "PUBLICITÉ",
+                  "AUCUNE PUBLICITÉ DISPONIBLE",
                   style: TextStyle(
-                    fontSize: 30,
+                    fontSize: 20,
                     fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -180,7 +308,7 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       bottomNavigationBar: CustomNavBar(currentIndex: 0),
-      floatingActionButton: IconButton(
+      /*floatingActionButton: IconButton(
           style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(Color(0xFF3172B8)),
             foregroundColor: WidgetStatePropertyAll(Colors.white),
@@ -196,7 +324,7 @@ class _HomePageState extends State<HomePage> {
             }
           }, 
           icon: Icon(Icons.chat)
-      ),
+      ),*/
     );
   }
 }

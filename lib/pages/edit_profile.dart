@@ -71,6 +71,11 @@ class _EditProfileState extends State<EditProfile> {
   Map<String, dynamic>? authUser;
   bool isLoading = true;
 
+  bool isUrl(String path) {
+    final regex = RegExp(r"^https?:\/\/");
+    return regex.hasMatch(path);
+  }
+
   Future<void> getAuthUser() async {
     try {
       final user = await userService.getUser();
@@ -80,7 +85,7 @@ class _EditProfileState extends State<EditProfile> {
         lastnameController.text = authUser!["last_name"];
         firstnameController.text = authUser!["first_name"];
         if (authUser!["datenaissance"] != null) {
-          dateController.text = _dateFormat.format(authUser!["datenaissance"]);
+          dateController.text = _dateFormat.format(DateTime.parse(authUser!["datenaissance"]));
         }
         if (authUser!["email"] != null) {
           emailController.text = authUser!["email"];
@@ -161,7 +166,7 @@ class _EditProfileState extends State<EditProfile> {
           authProvider.logout();
           context.go("/welcome");
         }
-        Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.statusCode}");
+        Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.data}");
       } else {
         // Gérer les erreurs réseau
         if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
@@ -188,6 +193,15 @@ class _EditProfileState extends State<EditProfile> {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     getAuthUser();
+  }
+
+  @override
+  void dispose() {
+    lastnameController.dispose();
+    firstnameController.dispose();
+    dateController.dispose();
+    emailController.dispose();
+    super.dispose();
   }
 
   @override
@@ -394,7 +408,9 @@ class _EditProfileState extends State<EditProfile> {
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         (_filePath != null) ?
-                                        Image.file(File(_filePath!)):
+                                        (isUrl(_filePath!)) ?
+                                        Image.network(_filePath!):
+                                            Image.file(File(_filePath!)):
                                         Icon(Icons.person_outline, color: Color(0xFF4B5563), size: 28,),
                                         SizedBox(width: 10,),
                                         Align(
