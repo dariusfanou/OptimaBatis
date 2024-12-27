@@ -90,7 +90,7 @@ class _VerificationPageState extends State<VerificationPage> {
 
       // Prépare les données à envoyer
       Map<String, dynamic> data = {
-        'from': "FASTERMSG",
+        'from': "OPTIMABATIS",
         'to': number!,
         'text': _code! + " est votre code secret. Ne le partagez pas."
       };

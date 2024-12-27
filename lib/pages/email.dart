@@ -95,11 +95,11 @@ class _EmailPageState extends State<EmailPage> {
 
     if(goal == "email") {
       setState(() {
-        isLoading = false;
+        isLoading = true;
       });
     } else {
       setState(() {
-        loading = false;
+        loading = true;
       });
     }
 
