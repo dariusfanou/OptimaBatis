@@ -209,24 +209,24 @@ class _EmailPageState extends State<EmailPage> {
 
       Map<String, dynamic> data = {
         "title": "Bienvenue sur OptimaBâtis",
-        "content": "Bonjour $lastname $firstname 👋, bienvenue sur OptimaBâtis ! " +
+        "content": "Bonjour $lastname $firstname 👋\n, Bienvenue sur OptimaBâtis ! " +
 
       "Nous sommes ravis de vous compter parmi nos utilisateurs. "+
 
-      "OptimaBâtis vous offre désormais une solution rapide et fiable pour gérer vos problèmes de dépannage immobilier en maçonnerie, plomberie, menuiserie, électricité, etc, de rénovation partielle ou totale, et de construction des bâtiments, et bien plus encore ! "+
+      "OptimaBâtis vous offre désormais une solution rapide et fiable pour gérer vos problèmes de dépannage immobilier en maçonnerie, plomberie, menuiserie, électricité, etc, de rénovation partielle ou totale, et de construction des bâtiments, et bien plus encore ! \n"+
 
       "🚀 Voici comment démarrer :\n"+
 
-      "Explorez nos catégories de services. "+
-      "Soumettez votre première demande en quelques clics. "+
+      "Explorez nos catégories de services. \n"+
+      "Soumettez votre première demande en quelques clics. \n"+
 
-      "Consultez vos notifications pour rester informé en temps réel. "+
+      "Consultez vos notifications pour rester informé en temps réel. \n"+
 
-      "Si vous avez des questions, notre support est là pour vous accompagner. "+
+      "Si vous avez des questions, notre support est là pour vous accompagner. \n"+
 
-      "Ensemble, transformons notre quotidien en matière de réparation immobilière et bâtissons autrement l'avenir de rénovation et de construction. "+
+      "Ensemble, transformons notre quotidien en matière de réparation immobilière et bâtissons autrement l'avenir de rénovation et de construction. \n"+
 
-      "Encore une fois, bienvenue dans la communauté OptimaBâtis !",
+      "Encore une fois, bienvenue dans la communauté OptimaBâtis !\n",
         "receiver": 1
       };
 

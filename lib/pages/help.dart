@@ -18,133 +18,129 @@ class Help extends StatefulWidget {
 
 class _HelpState extends State<Help> {
   final TextEditingController _searchController = TextEditingController();
-  final List<String> _clients = [
-    'Questions Générales',
+  final List<Map<String,String>> _clients = [
+    {
+      "title":'Questions Générales',
+      "content":'1-	Qu’est-ce qu’OptimaBâtis ?\n'+
 
-  '1-	Qu’est-ce qu’OptimaBâtis ?',
+          'OptimaBâtis est une application mobile qui met en relation des clients avec des prestataires professionnels pour résoudre des problèmes de réparation, de réfection de bâtiment (maçonnerie, plomberie, électricité, menuiserie etc), rénovation partielle ou total de bâtiment, et de construction de BTP, et enfin des problèmes informatiques et réseaux .\n'
+          +
+          '2-	Qui peut utiliser OptimaBâtis ?\n'+
 
-  'OptimaBâtis est une application mobile qui met en relation des clients avec des prestataires professionnels pour résoudre des problèmes de réparation, de réfection de bâtiment (maçonnerie, plomberie, électricité, menuiserie etc), rénovation partielle ou total de bâtiment, et de construction de BTP, et enfin des problèmes informatiques et réseaux ;',
+          'L’application est destinée aux clients ayant besoin de services ainsi qu’aux entreprises ou professionnels offrant des services de réparation et de maintenance.\n'
+          +
+          '3-	OptimaBâtis est-elle disponible dans mon pays ?\n'
+          +
+          'OptimaBâtis est actuellement disponible au Bénin, au Togo, au Niger, au Mali, au Burkina Faso, au Sénégal, en Côte d\'Ivoire et en Guinée. Vérifiez dans l’application pour connaître les zones supportées.\n'
 
-  '2-	Qui peut utiliser OptimaBâtis ?',
+    },
+    {
+      "title":'Compte et Inscription',
+      "content":'4-	Comment créer un compte ?\n'+
 
-  'L’application est destinée aux clients ayant besoin de services ainsi qu’aux entreprises ou professionnels offrant des services de réparation et de maintenance.',
+      'Vous pouvez vous inscrire en utilisant votre numéro de téléphone, Google, Facebook ou Apple. N’oubliez pas de compléter votre profil en ajoutant votre prénom et votre genre.'+
 
-  '3-	OptimaBâtis est-elle disponible dans mon pays ?',
+          '5-	J’ai oublié mon mot de passe. Que dois-je faire ?'+
 
-  'OptimaBâtis est actuellement disponible au Bénin, au Togo, au Niger, au Mali, au Burkina Faso, au Sénégal, en Côte d\'Ivoire et en Guinée. Vérifiez dans l’application pour connaître les zones supportées.',
+          'Utilisez l’option « Mot de passe oublié » sur la page de connexion pour le réinitialiser via SMS ou email.'+
 
-  'Compte et Inscription',
+          '6-	Puis-je mettre à jour mes informations de profil ?'+
 
-  '4-	Comment créer un compte ?',
+          'Oui, vous pouvez modifier vos informations dans la section "Profil" de l’application.'
+    },
+    {
+          "title":'Soumettre une Demande de Service',
+          "content":'7-	Comment soumettre une demande de service ?'+
 
-  'Vous pouvez vous inscrire en utilisant votre numéro de téléphone, Google, Facebook ou Apple. N’oubliez pas de compléter votre profil en ajoutant votre prénom et votre genre.',
+    'Accédez aux catégories de services (ex. : Plomberie, Menuiserie), sélectionnez votre problème, remplissez le formulaire en plusieurs étapes et ajoutez des photos si nécessaires.'+
 
-  '5-	J’ai oublié mon mot de passe. Que dois-je faire ?',
+    '8-	Puis-je joindre des photos à ma demande ?'+
 
-  'Utilisez l’option « Mot de passe oublié » sur la page de connexion pour le réinitialiser via SMS ou email.',
+    'Oui, vous pouvez ajouter des photos pour mieux illustrer le problème.'+
 
-  '6-	Puis-je mettre à jour mes informations de profil ?',
 
-  'Oui, vous pouvez modifier vos informations dans la section "Profil" de l’application.',
+    '9-	Combien de temps faut-il pour qu’un professionnel réponde à ma demande ?'+
 
-  'Soumettre une Demande de Service',
+    'Les délais de réponse est instantanée ;'
+    },
+    {"title":"Paiements et Portefeuille",
+      "content":'10-	Comment effectuer un paiement ?\n'+
 
-  '7-	Comment soumettre une demande de service ?',
+          'Vous pouvez alimenter votre portefeuille avec de l’argent mobile, un virement bancaire ou une carte de crédit Visa. Les paiements sont sécurisés.'+
 
-  'Accédez aux catégories de services (ex. : Plomberie, Menuiserie), sélectionnez votre problème, remplissez le formulaire en plusieurs étapes et ajoutez des photos si nécessaires.',
+          '11-	Que se passe-t-il si mon portefeuille est insuffisant ?'+
 
-  '8-	Puis-je joindre des photos à ma demande ?',
+          'Vous pouvez recharger votre portefeuille à tout moment avec les méthodes de paiement disponibles.'+
 
-  'Oui, vous pouvez ajouter des photos pour mieux illustrer le problème.',
+          '12-	Mes informations de paiement sont-elles sécurisées ?'+
 
+          'Oui, OptimaBâtis utilise des standards de sécurité élevés pour protéger vos données personnelles et bancaires.'+
 
-  '9-	Combien de temps faut-il pour qu’un professionnel réponde à ma demande ?',
+          '13-	Puis-je obtenir un remboursement si le service n’est pas satisfaisant ?'+
 
-  'Les délais de réponse est instantanée ;',
+          'Les remboursements sont soumis à une revue selon les termes et conditions. Contactez le support pour obtenir de l’aide.'
+    },
+    {
+      "title":'Messagerie et Notifications',
+      "content":'14-	Puis-je communiquer directement avec un prestataire ?\n'+
 
+      'Oui, une fois votre demande assignée, vous pouvez discuter avec le prestataire via la messagerie intégrée.'+
 
-  'Paiements et Portefeuille',
+      '15-	Pourquoi je ne reçois pas les notifications ?'+
 
-  '10-	Comment effectuer un paiement ?',
+      'Vérifiez les paramètres de notification de l’application et de votre appareil pour vous assurer qu’elles sont activées.'+
 
-  'Vous pouvez alimenter votre portefeuille avec de l’argent mobile, un virement bancaire ou une carte de crédit Visa. Les paiements sont sécurisés.',
+      '16-	Questions pour les Administrateurs'+
 
-  '11-	Que se passe-t-il si mon portefeuille est insuffisant ?',
+      '17-	Comment signaler un problème avec un prestataire ou un service ?'+
 
-  'Vous pouvez recharger votre portefeuille à tout moment avec les méthodes de paiement disponibles.',
+      'Rendez-vous dans la section "Support" pour soumettre un rapport en détaillant le problème.'+
 
-  '12-	Mes informations de paiement sont-elles sécurisées ?',
+      '18-	Comment les prestataires sont-ils vérifiés ?'+
 
-  'Oui, OptimaBâtis utilise des standards de sécurité élevés pour protéger vos données personnelles et bancaires.',
+      'OptimaBâtis vérifie les prestataires grâce à des contrôles d’identité et de qualifications.'+
 
-  '13-	Puis-je obtenir un remboursement si le service n’est pas satisfaisant ?',
+      '19-	Que faire si ma demande est retardée ou non résolue ?'+
 
-  'Les remboursements sont soumis à une revue selon les termes et conditions. Contactez le support pour obtenir de l’aide.',
+      'Contactez notre support via l’application pour obtenir de l’aide et résoudre le problème.'},
+    {
+      "title":'Problèmes Techniques',
+      "content":'20-	L’application ne fonctionne pas correctement. Que dois-je faire ?\n'+
 
+          'Assurez-vous que l’application est mise à jour. Si le problème persiste, contactez le support.'+
 
-  'Messagerie et Notifications',
+          '21-	Puis-je utiliser OptimaBâtis hors ligne ?'+
 
-  '14-	Puis-je communiquer directement avec un prestataire ?',
+          'Non, vous avez besoin d’une connexion Internet pour parcourir les services, soumettre des demandes et communiquer avec les prestataires.'
+    },
+    {
+      "title":'Sécurité et Confidentialité',
+      "content":'22-	Mes données personnelles sont-elles en sécurité sur OptimaBâtis ?\n'+
 
-  'Oui, une fois votre demande assignée, vous pouvez discuter avec le prestataire via la messagerie intégrée.',
+          'Oui, nous donnons la priorité à la confidentialité des utilisateurs et respectons les réglementations en matière de protection des données.'+
 
-  '15-	Pourquoi je ne reçois pas les notifications ?',
+          '23-	Comment supprimer mon compte ?'+
 
-  'Vérifiez les paramètres de notification de l’application et de votre appareil pour vous assurer qu’elles sont activées.',
+          'Si vous souhaitez supprimer votre compte, accédez à "Paramètres" et sélectionnez "Supprimer mon compte". Cette action est irréversible.'
 
-  '16-	Questions pour les Administrateurs',
+    },
+    {
+      "title":'Fonctionnalités Supplémentaires',
+      "content":'24-	Puis-je planifier une demande de service ?\n'+
 
-  '17-	Comment signaler un problème avec un prestataire ou un service ?',
+          'Oui, vous pouvez spécifier une date et une heure préférées lors de la soumission de votre demande.'+
 
-  'Rendez-vous dans la section "Support" pour soumettre un rapport en détaillant le problème.',
+          '25-	Comment suivre ma demande de service ?'+
 
-  '18-	Comment les prestataires sont-ils vérifiés ?',
+          'Vous pouvez suivre le statut de votre demande dans la section "Mes Demandes", où les mises à jour sont affichées en temps réel.'+
 
-  'OptimaBâtis vérifie les prestataires grâce à des contrôles d’identité et de qualifications.',
+          '26-	Puis-je consulter mon historique de transactions ?'+
 
-  '19-	Que faire si ma demande est retardée ou non résolue ?',
+          'Oui, la section "Portefeuille" affiche un historique détaillé de vos transactions, y compris les dépôts et les paiements.'+
 
-  'Contactez notre support via l’application pour obtenir de l’aide et résoudre le problème.',
 
-
-  'Problèmes Techniques',
-
-  '20-	L’application ne fonctionne pas correctement. Que dois-je faire ?',
-
-  'Assurez-vous que l’application est mise à jour. Si le problème persiste, contactez le support.',
-
-  '21-	Puis-je utiliser OptimaBâtis hors ligne ?',
-
-  'Non, vous avez besoin d’une connexion Internet pour parcourir les services, soumettre des demandes et communiquer avec les prestataires.',
-
-
-  'Sécurité et Confidentialité',
-
-  '22-	Mes données personnelles sont-elles en sécurité sur OptimaBâtis ?',
-
-  'Oui, nous donnons la priorité à la confidentialité des utilisateurs et respectons les réglementations en matière de protection des données.',
-
-  '23-	Comment supprimer mon compte ?',
-
-  'Si vous souhaitez supprimer votre compte, accédez à "Paramètres" et sélectionnez "Supprimer mon compte". Cette action est irréversible.',
-
-
-  'Fonctionnalités Supplémentaires',
-
-  '24-	Puis-je planifier une demande de service ?',
-
-  'Oui, vous pouvez spécifier une date et une heure préférées lors de la soumission de votre demande.',
-
-  '25-	Comment suivre ma demande de service ?',
-
-  'Vous pouvez suivre le statut de votre demande dans la section "Mes Demandes", où les mises à jour sont affichées en temps réel.',
-
-  '26-	Puis-je consulter mon historique de transactions ?',
-
-  'Oui, la section "Portefeuille" affiche un historique détaillé de vos transactions, y compris les dépôts et les paiements.',
-
-
-  'Cette FAQ pourra être enrichie ou ajustée en fonction des retours des utilisateurs à mesure que l’application évolue.',
+          'Cette FAQ pourra être enrichie ou ajustée en fonction des retours des utilisateurs à mesure que l’application évolue.'
+    }
   ];
 
   final userService = UserService();
@@ -211,7 +207,7 @@ class _HelpState extends State<Help> {
   }
 
   // Fonction pour filtrer les clients en fonction de la recherche
-  List<String> _filterClients(String query) {
+  List<Map<String,String>> _filterClients(String query) {
     return _clients.where((client) => client.toLowerCase().contains(query.toLowerCase())).toList();
   }
   @override
@@ -268,11 +264,36 @@ class _HelpState extends State<Help> {
           Expanded(child: ListView.builder(
             itemCount: _filterClients(_searchController.text).length,
             itemBuilder: (context, index){
-              return ListTile(
-                title: Text(_filterClients(_searchController.text)[index]),
+              return ListView.builder(
+                itemCount: _clients.length,
+                itemBuilder: (context, index) {
+                  final item = _clients[index];
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: RichText(
+                      text: TextSpan(
+                        style: DefaultTextStyle.of(context).style,
+                        children: [
+                          TextSpan(
+                            text: "${item['title']}\n",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          TextSpan(
+                            text: item['content'],
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               );
+
             },
-          ))
+          ),),
         ]
       ),
       bottomNavigationBar: CustomNavBar(currentIndex: 3),
