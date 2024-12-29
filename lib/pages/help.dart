@@ -208,7 +208,9 @@ class _HelpState extends State<Help> {
 
   // Fonction pour filtrer les clients en fonction de la recherche
   List<Map<String,String>> _filterClients(String query) {
-    return _clients.where((client) => client.toLowerCase().contains(query.toLowerCase())).toList();
+    return _clients.where((client) {
+      return client['content']!.toLowerCase().contains(query.toLowerCase());
+    }).toList();
   }
   @override
   Widget build(BuildContext context) {
