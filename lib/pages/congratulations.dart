@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -38,6 +40,10 @@ class _CongratulationsPageState extends State<CongratulationsPage> {
 
       await interventionSerice.update(data, interventionId);
 
+      await createNotification();
+
+      await prefs.remove("interventionId");
+
     } on DioException catch (e) {
       // Gérer les erreurs de la requête
       print(e.response?.statusCode);
@@ -60,6 +66,11 @@ class _CongratulationsPageState extends State<CongratulationsPage> {
       }
     } catch (e) {
       // Gérer d'autres types d'erreurs
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
       Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
     }
 
@@ -99,6 +110,11 @@ class _CongratulationsPageState extends State<CongratulationsPage> {
       }
     } catch (e) {
       // Gérer d'autres types d'erreurs
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
       Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
     } finally {
       setState(() {
@@ -113,7 +129,6 @@ class _CongratulationsPageState extends State<CongratulationsPage> {
     super.initState();
     authProvider = Provider.of<AuthProvider>(context, listen: false);
     updateInterventionStatus();
-    createNotification();
   }
 
   @override

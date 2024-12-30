@@ -72,8 +72,9 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
               children: [
                 _buildRadioOption(1, "Signalement de panne"),
                 _buildRadioOption(2, "Demande de rénovation totale de bâtiment"),
-                _buildRadioOption(3, "Construction"),
-                _buildRadioOption(4, "Informatique et réseaux"),
+                _buildRadioOption(3, "Demande de rénovation partielle de bâtiment"),
+                _buildRadioOption(4, "Construction"),
+                _buildRadioOption(5, "Informatique et réseaux"),
               ],
             ),
             Spacer(),
@@ -107,9 +108,12 @@ class _DetailsInterventionPageState extends State<DetailsInterventionPage> {
                       await prefs.setString("demande", "rennovationTotale");
                       break;
                     case 3:
-                      await prefs.setString("demande", "construction");
+                      await prefs.setString("demande", "rennovationPartielle");
                       break;
                     case 4:
+                      await prefs.setString("demande", "construction");
+                      break;
+                    case 5:
                       await prefs.setString("demande", "informatique");
                       break;
                   }

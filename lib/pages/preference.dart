@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -40,19 +42,19 @@ class _PreferenceState extends State<Preference> {
       final String? image2 = await prefs.getString('image2');
       final String? service = await prefs.getString('service');
 
-      Map<String, dynamic> data = {
+      FormData formData = FormData.fromMap({
         'typedemande': demande,
-        "description": description,
-        "date": date,
+        'description': description,
+        'date': date,
         'heure': hour,
-        'image0': image0,
-        'image1': image1,
-        'image2': image2,
-        "preferencecontact": preference,
-        "service" : service
-      };
+        'preferencecontact': preference,
+        'service': service,
+        'image0': image0 != null ? await MultipartFile.fromFile(image0, filename: 'image0.jpg') : null,
+        'image1': image1 != null ? await MultipartFile.fromFile(image1, filename: 'image1.jpg') : null,
+        'image2': image2 != null ? await MultipartFile.fromFile(image2, filename: 'image2.jpg') : null,
+      });
 
-      Map<String, dynamic> response = await interventionService.create(data);
+      Map<String, dynamic> response = await interventionService.create(formData);
 
       prefs.setInt("interventionId", response["id"]);
 
@@ -83,7 +85,14 @@ class _PreferenceState extends State<Preference> {
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
 
+    } catch (e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
     }
+
 
   }
 
@@ -95,7 +104,7 @@ class _PreferenceState extends State<Preference> {
 
       Map<String, dynamic> data = {
         "title": "Demande créée avec succès",
-        "content": "Votre demande a été bien enregistrée. Elle est actuellement en attente et sera validée après le paiement. Rendez-vous dans votre historique pour accéder au lien de paiement.",
+        "content": "Votre demande a été bien enregistrée.\nElle est actuellement en attente et sera validée après le paiement.\nRendez-vous dans votre historique pour accéder au lien de paiement.",
         "receiver": 1
       };
 
@@ -123,6 +132,11 @@ class _PreferenceState extends State<Preference> {
       }
     } catch (e) {
       // Gérer d'autres types d'erreurs
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
       Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
     } finally {
       setState(() {
@@ -151,6 +165,12 @@ class _PreferenceState extends State<Preference> {
         context.go("/welcome");
       }
       print('Erreur lors de la récupération des données utilisateur : $e');
+    } catch (e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
     }
   }
 

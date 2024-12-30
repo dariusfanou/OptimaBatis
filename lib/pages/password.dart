@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -74,6 +76,11 @@ class _PasswordPageState extends State<PasswordPage> {
       }
     } catch (e) {
       // Gérer d'autres types d'erreurs
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
       Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
     } finally {
       setState(() {

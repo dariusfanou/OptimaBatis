@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import 'package:mime/mime.dart';
 import 'package:optimabatis/auth_provider.dart';
 import 'package:optimabatis/flutter_helpers/services/user_service.dart';
 import 'package:file_picker/file_picker.dart';
@@ -103,89 +104,87 @@ class _EditProfileState extends State<EditProfile> {
         context.go("/welcome");
       }
       print('Erreur lors de la récupération des données utilisateur : $e');
+    } catch(e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
     }
   }
 
-  updateUser() async {
-
+  Future<void> updateUser() async {
     setState(() {
       loading = true;
     });
 
     try {
-
+      // Préparer les données du formulaire
       Map<String, dynamic> data = {
         'email': emailController.text,
-        "numtelephone": authUser!["numtelephone"],
-        "first_name": firstnameController.text,
+        'numtelephone': authUser?["numtelephone"],
+        'first_name': firstnameController.text,
         'last_name': lastnameController.text,
-        "genre": gender,
-        "datenaissance": dateStocked
+        'genre': gender,
+        'datenaissance': dateStocked,
       };
 
+      // Si un fichier image a été sélectionné, le préparer
       if (_filePath != null && _filePath!.isNotEmpty) {
         final File file = File(_filePath!);
 
         if (await file.exists()) {
-          String mimeType = 'image/jpeg'; // Valeur par défaut (JPEG)
-          String extension = _filePath!.split('.').last.toLowerCase(); // Récupère l'extension du fichier
-
-          if (extension == 'png') {
-            mimeType = 'image/png';
-          }
-          if (extension == 'jpg') {
-            mimeType = 'image/jpg';
-          }
-
-          // Ajouter la photo dans les données
-          data['photo'] = await MultipartFile.fromFile(_filePath!, contentType: DioMediaType.parse(mimeType));
+          String mimeType = lookupMimeType(_filePath!) ?? 'image/jpeg'; // Récupère le type MIME
+          data['photo'] = await MultipartFile.fromFile(
+            _filePath!,
+            contentType: DioMediaType.parse(mimeType),
+          );
         } else {
           print('Le fichier photo n\'existe pas.');
         }
-      } else {
-        print('Aucun fichier photo trouvé.');
       }
 
-      await userService.updateUser(data);
+      // Construire le FormData pour l'envoi multipart
+      final formData = FormData.fromMap(data);
 
-      lastnameController.text = "";
-      firstnameController.text = "";
-      dateController.text = "";
-      emailController.text = "";
+      // Appeler le service utilisateur pour mettre à jour le profil
+      await userService.updateUser(formData);
+
+      // Réinitialiser les champs après succès
+      lastnameController.clear();
+      firstnameController.clear();
+      dateController.clear();
+      emailController.clear();
 
       Fluttertoast.showToast(msg: "Profil modifié avec succès");
-
       context.push("/profile");
-
     } on DioException catch (e) {
-      // Gérer les erreurs de la requête
-      print(e.response?.statusCode);
-      if (e.response != null) {
-        if(e.response?.statusCode == 401) {
-          Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
-          authProvider.logout();
-          context.go("/welcome");
-        }
-        Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.data}");
+      // Gérer les erreurs spécifiques à Dio
+      print("Erreur Dio : ${e.response?.statusCode}");
+      print("Détails : ${e.response?.data}");
+      if (e.response?.statusCode == 401) {
+        Fluttertoast.showToast(msg: "Votre session a expirée. Veuillez vous reconnecter.");
+        authProvider.logout();
+        context.go("/welcome");
+      } else if (e.response?.statusCode == 415) {
+        Fluttertoast.showToast(msg: "Erreur : Type de données non supporté.");
       } else {
-        // Gérer les erreurs réseau
-        if (e.type == DioExceptionType.connectionTimeout || e.type == DioExceptionType.receiveTimeout) {
-          Fluttertoast.showToast(msg: "Temps de connexion écoulé. Vérifiez votre connexion Internet.");
-        } else if (e.type == DioExceptionType.unknown) {
-          Fluttertoast.showToast(msg: "Impossible de se connecter au serveur. Vérifiez votre réseau.");
-        } else {
-          Fluttertoast.showToast(msg: "Une erreur est survenue.");
-        }
+        Fluttertoast.showToast(msg: "Erreur du serveur : ${e.response?.data}");
       }
     } catch (e) {
-      // Gérer d'autres types d'erreurs
+      // Gérer toute autre erreur
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
+      print("Erreur inattendue : $e");
       Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
     } finally {
       setState(() {
         loading = false;
       });
     }
-
   }
 
   @override

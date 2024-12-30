@@ -103,7 +103,14 @@ class _Activity_onloadState extends State<Activity_onload>
       }
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
-    } finally {
+    } catch (e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
+    }
+    finally {
       setState(() {
         loading = false;
       });
@@ -146,6 +153,12 @@ class _Activity_onloadState extends State<Activity_onload>
       }
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
+    } catch(e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
     }
   }
 

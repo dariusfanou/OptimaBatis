@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -29,6 +31,11 @@ class _ProfilePageState extends State<ProfilePage> {
         isLoading = false;
       });
     } catch (e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
       setState(() {
         isLoading = false;
       });
@@ -86,6 +93,11 @@ class _ProfilePageState extends State<ProfilePage> {
       }
     } catch (e) {
       // Gérer d'autres types d'erreurs
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
       Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
     }
 
@@ -132,9 +144,9 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundImage: AssetImage(
-                          authUser?["photo"] ?? 'assets/images/profile.png',
-                        ),
+                        backgroundImage: authUser?['photo'] != null
+                            ? NetworkImage(authUser!['photo'])
+                            : const AssetImage('assets/images/profile.png') as ImageProvider,
                       ),
                       const SizedBox(width: 10),
                       Column(

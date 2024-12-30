@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:carousel_slider/carousel_controller.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
@@ -56,6 +58,12 @@ class _HomePageState extends State<HomePage> {
         context.go("/welcome");
       }
       print("Erreur lors de la récupération de l'utilisateur : $error");
+    } catch(e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
     }
   }
 
@@ -87,6 +95,12 @@ class _HomePageState extends State<HomePage> {
       }
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
+    } catch(e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
     }
   }
 
@@ -119,7 +133,14 @@ class _HomePageState extends State<HomePage> {
       }
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
-    } finally {
+    } catch (e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
+    }
+    finally {
       setState(() {
         loading = false;
       });
@@ -147,8 +168,8 @@ class _HomePageState extends State<HomePage> {
           children: [
             CircleAvatar(
               radius: 20,
-              backgroundImage: authUser?['profilePicture'] != null
-                  ? NetworkImage(authUser!['profilePicture'])
+              backgroundImage: authUser?['photo'] != null
+                  ? NetworkImage(authUser!['photo'])
                   : const AssetImage('assets/images/profile.png') as ImageProvider,
             ),
             Expanded(

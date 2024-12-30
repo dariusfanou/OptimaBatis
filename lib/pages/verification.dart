@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -119,6 +120,11 @@ class _VerificationPageState extends State<VerificationPage> {
       }
     } catch (e) {
       // Gérer d'autres types d'erreurs
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
       if (!_isDisposed) {
         Fluttertoast.showToast(msg: "Une erreur inattendue s'est produite.");
       }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -45,6 +47,12 @@ class _PubliciteState extends State<Publicite> {
         context.go("/welcome");
       }
       print("Erreur lors de la récupération de l'utilisateur : $error");
+    } catch(e){
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
     }
   }
 
@@ -68,7 +76,14 @@ class _PubliciteState extends State<Publicite> {
       }
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
-    } finally {
+    } catch(e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
+    }
+    finally {
       setState(() {
         loading = false;
       });
@@ -103,6 +118,12 @@ class _PubliciteState extends State<Publicite> {
       }
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
+    } catch(e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
     }
   }
 

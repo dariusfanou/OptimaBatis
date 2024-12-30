@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../dio_instance.dart';
@@ -16,7 +17,7 @@ class UserService {
     return response.data;
   }
 
-  Future<Map<String, dynamic>> create (Map<String, dynamic> data) async{
+  Future<Map<String, dynamic>> create (FormData data) async{
 
     final response = await api.post('immobilierpannehelper/usercreate', data: data);
 
@@ -37,7 +38,7 @@ class UserService {
     return response.data;
   }
 
-  Future<void> updateUser(Map<String, dynamic> data) async {
+  Future<void> updateUser(FormData data) async {
     final pref = await SharedPreferences.getInstance();
     String token = pref.getString("token") ?? "";
 

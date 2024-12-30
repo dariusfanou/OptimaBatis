@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -43,7 +45,14 @@ class _NotificationPageState extends State<NotificationPage> {
       }
 
       Fluttertoast.showToast(msg: "Une erreur est survenue");
-    } finally {
+    } catch(e) {
+      if (e is SocketException) {
+        Fluttertoast.showToast(msg: "Pas d'accès Internet. Veuillez vérifier votre connexion.");
+      } else {
+        Fluttertoast.showToast(msg: "Une erreur inattendue est survenue.");
+      }
+    }
+    finally {
       setState(() {
         isLoading = false;
       });

@@ -7,7 +7,7 @@ class InterventionService {
 
   Dio api = configureDio();
 
-  Future<Map<String, dynamic>> create (Map<String, dynamic> data) async{
+  Future<Map<String, dynamic>> create (FormData data) async{
 
     final pref = await SharedPreferences.getInstance();
     String token = pref.getString("token") ?? "";
