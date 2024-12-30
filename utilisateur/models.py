@@ -4,6 +4,7 @@ from django.utils.timezone import timedelta,now
 # Create your models here.
 class Utilisateur(AbstractUser):
     genres=[('homme','homme'),('femme','femme')]
+    username=models.CharField(max_length=50,unique=False,blank=True)
     email=models.EmailField(blank=True)
     numtelephone=models.CharField(max_length=15,unique=True)
     first_name=models.CharField(max_length=20)

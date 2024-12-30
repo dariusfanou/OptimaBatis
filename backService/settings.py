@@ -27,7 +27,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['optimabatis-1.onrender.com']
+ALLOWED_HOSTS = []
 
 from datetime import timedelta
 # Application definition
@@ -54,7 +54,8 @@ REST_FRAMEWORK={
         'django_filters.rest_framework.DjangoFilterBackend','rest_framework.filters.SearchFilter'
     ],
     'DEFAULT_AUTHENTICATION_CLASSES':('rest_framework_simplejwt.authentication.JWTAuthentication',),
-
+    'DEFAULT_PAGINATION_CLASS':'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE':7
 }
 
 
@@ -99,7 +100,10 @@ WSGI_APPLICATION = 'backService.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': dj_database_url.parse(config('DATABASE_URL'))
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
